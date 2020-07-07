@@ -1,0 +1,7 @@
+mutate (0,"A",1,"","SER")
+set_residue_to_rotamer_name (0,"A",1,"","","p")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/SER/SER_p.pdb")
+set_residue_to_rotamer_name (0,"A",1,"","","t")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/SER/SER_t.pdb")
+set_residue_to_rotamer_name (0,"A",1,"","","m")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/SER/SER_m.pdb")

@@ -57,7 +57,7 @@ nproc=RJB_lib.number_of_processor()
 #nproc=20
 #nproc=24
 #nproc=48
-nproc=10
+nproc=6
 
 ####Check if files exist and if mtz_phases does not, it generates it with phenix.maps
 for i in [pdb,mtz_init,mtz_phases]:

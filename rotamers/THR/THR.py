@@ -1,0 +1,7 @@
+mutate (0,"A",1,"","THR")
+set_residue_to_rotamer_name (0,"A",1,"","","p")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/THR/THR_p.pdb")
+set_residue_to_rotamer_name (0,"A",1,"","","t")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/THR/THR_t.pdb")
+set_residue_to_rotamer_name (0,"A",1,"","","m")
+write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/THR/THR_m.pdb")
