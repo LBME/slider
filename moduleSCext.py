@@ -105,9 +105,6 @@ for model in structure:
 
 '''
 
-
-
-
 # now = datetime.datetime.now()
 # date = now.isoformat()[:10] + ' ' + now.isoformat()[11:16]
 # print 'Running '+sys.argv[0]+' '+date
@@ -124,9 +121,10 @@ for model in structure:
 
 
 ############# CODE START HERE
-#Precisa de dois arquivos para abrir; o input(base) e o model(alvo), comentei a parte que ele salva a translação para não editar seus arquivos.
+# Precisa de dois arquivos para abrir; o input(base) e o model(alvo), comentei a parte que ele salva a translação para não editar seus arquivos.
 pdbinput = sys.argv[1]
 pdbmodel = sys.argv[2]
+
 
 class InfoFile:
     def __init__(self, type, atomindex, atomtype, rest, ch, resn, v1, v2, v3, occ, wbf, specificAtom, startIn):
@@ -205,6 +203,7 @@ for l in frl:
 CApos = dictpdb['A'][1]['CA']
 Npos = dictpdb['A'][1]['N']
 Cpos = dictpdb['A'][1]['C']
+Opos = dictpdb['A'][1]['O']
 
 with open(pdbmodel, 'r+') as mr:
     print(mr)
@@ -243,12 +242,108 @@ for m in mrl:
 
 import numpy as np
 
-#Pos. dos átomos; a = Nalvo; b = CApos; c = Nbase. (Não fiz direto para testar, caso queira testar outros átomos como C, trocar "a" e "c".)
-a = np.array([20.646, 18.358, -36.909])
-b = np.array([20.479, 19.415, -37.955])
-c = np.array([21.413, 19.090, -39.010])
+# Pos. dos átomos; a = Nalvo; b = CApos; c = Nbase. (Não fiz direto para testar, caso queira testar outros átomos como C, trocar "a" e "c".)
+# a = np.array([20.646, 18.358, -36.909])
+# b = np.array([20.479, 19.415, -37.955])
+# c = np.array([21.413, 19.090, -39.010])
+
+CAposC = (CApos[0], CApos[1], CApos[2])
+CposC = (Cpos[0], Cpos[1], Cpos[2])
+NposC = (Npos[0], Npos[1], Npos[2])
+OposC = (Opos[0], Opos[1], Opos[2])
+
+CAposModel = (CApos[0], CApos[1], CApos[2])
+CposModel = (CApos[0] + 0.002, CApos[1] + 1.445, CApos[2] + -0.518)
+NposModel = (CApos[0] + -0.001, CApos[1] + 0.001, CApos[2] + 1.496)
+OposModel = (CApos[0] + 0.873, CApos[1] + 1.839, CApos[2] + -1.295)
+
+P = np.array([CAposC, CposC, NposC, OposC])
+Q = np.array([CAposModel, CposModel, NposModel, OposModel])
+print("P", P)  # Visualização
+print("Q", Q)  # Visualização
 
 
+def centroid(X):
+    """
+    Centroid is the mean position of all the points in all of the coordinate
+    directions, from a vectorset X.
+    https://en.wikipedia.org/wiki/Centroid
+    C = sum(X)/len(X)
+    Parameters
+    ----------
+    X : array
+        (N,D) matrix, where N is points and D is dimension.
+    Returns
+    -------
+    C : float
+        centroid
+    """
+    C = X.mean(axis=0)
+    return C
+
+
+Ptrans = P - centroid(P)
+Qtrans = Q - centroid(Q)
+print(centroid(P))
+#print(centroid(Q))
+print(Ptrans)
+#print((CApos[1]+Cpos[1]+Npos[1]+Opos[1])/4) #Teste de cálculo
+
+
+def kabsch(P, Q):
+    """
+    Using the Kabsch algorithm with two sets of paired point P and Q, centered
+    around the centroid. Each vector set is represented as an NxD
+    matrix, where D is the the dimension of the space.
+    The algorithm works in three steps:
+    - a centroid translation of P and Q (assumed done before this function
+      call)
+    - the computation of a covariance matrix C
+    - computation of the optimal rotation matrix U
+    For more info see http://en.wikipedia.org/wiki/Kabsch_algorithm
+    Parameters
+    ----------
+    P : array
+        (N,D) matrix, where N is points and D is dimension.
+    Q : array
+        (N,D) matrix, where N is points and D is dimension.
+    Returns
+    -------
+    U : matrix
+        Rotation matrix (D,D)
+    """
+
+    # Computation of the covariance matrix
+    C = np.dot(np.transpose(P), Q)
+
+    # Computation of the optimal rotation matrix
+    # This can be done using singular value decomposition (SVD)
+    # Getting the sign of the det(V)*(W) to decide
+    # whether we need to correct our rotation matrix to ensure a
+    # right-handed coordinate system.
+    # And finally calculating the optimal rotation matrix U
+    # see http://en.wikipedia.org/wiki/Kabsch_algorithm
+    V, S, W = np.linalg.svd(C)
+    d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
+
+    if d:
+        S[-1] = -S[-1]
+        V[:, -1] = -V[:, -1]
+
+    # Create Rotation matrix U
+    U = np.dot(V, W)
+
+    return U
+
+
+U = kabsch(Ptrans, Qtrans)
+
+teste = np.dot(Ptrans, U)
+#print("U", U)
+print(teste)
+print(Qtrans)
+
+'''
 def rotate(a, b, c):  #A função requer 3 coordenadas atômicas, a pos. de um átomo da base, do carbono alfa e de um átomo espelhado do alvo. Ex: (Nalvo, CApos, Nbase)
     ba = a - b
     bc = c - b
@@ -277,8 +372,7 @@ print(Nalvo)
 # Para que o resultado seja igual, é preciso que os vetores sejam de tamanhos iguais, por isso há uma pequena diferença, evidenciada pela pequena dif na norma.
 print("Norma de (Nalvo - CApos)", np.linalg.norm(a-b))
 print("Norma de (Nbase - CApos)", np.linalg.norm(c-b))
-
-
+'''
 
 '''
 cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
