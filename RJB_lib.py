@@ -5,6 +5,10 @@
 #import RJB_lib
 #import #
 
+from __future__ import print_function
+from builtins import range
+from builtins import bytes, str
+
 import string
 import sys
 import os
@@ -19,24 +23,23 @@ def cosdeg (angle_degree):
 def sindeg (angle_degree):
     return math.sin(math.radians(angle_degree))
 import itertools
-import ConfigParser
-import subprocess
+#import ConfigParser
 from collections import defaultdict
 
 
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools")
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools/Brasil")
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/SLIDER/seq_slider")
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO_FULL")
-sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
-sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools")
-sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools/Brasil")
-# sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
-# sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
-# sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO_FULL")
-sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/SLIDER/seq_slider")
-sys.path.insert(0, "/home/rborges/REPO-ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools/Brasil")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/SLIDER/seq_slider")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO_FULL")
+#sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
+#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools")
+#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools/Brasil")
+## sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
+## sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
+## sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO_FULL")
+#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/SLIDER/seq_slider")
+#sys.path.insert(0, "/home/rborges/REPO-ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
 
 
 #import BORGES_MATRIX
@@ -106,7 +109,7 @@ def extract_unit_cell_space_group_from_mtz_to_list ( file_input_mtz ):
             space_group_file.close()
             return unit_cell,space_group
         except:
-            print 'Unfortunately, problem extracting information from both "mtzinfo/mtzdmp '+file_input_mtz+'"'
+            print ('Unfortunately, problem extracting information from both "mtzinfo/mtzdmp '+file_input_mtz+'"')
         exit()
 
 def phs2mtz ( file_input_phs , file_input_mtz , file_output_mtz , printt=False):
@@ -124,7 +127,7 @@ def phs2mtz ( file_input_phs , file_input_mtz , file_output_mtz , printt=False):
     phs2mtz_job_instr=open('phs2mtz_job_instr.txt','r')
     phs2mtz_job = subprocess.Popen([ 'f2mtz','HKLIN',file_input_phs,'HKLOUT',file_output_mtz], stdin=phs2mtz_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = phs2mtz_job.communicate()
-    if printt: print out
+    if printt: print (out)
     phs2mtz_job_instr.close()
     #os.system('phs2mtz_job_instr.txt')
 
@@ -164,7 +167,7 @@ def mtz2hlc_script ( file_input_mtz , file_output_hlc ):
     elif 'F-obs' in labels_list :
         mtz2hlc_job_descr.write('F-obs')
     else:
-        print 'mtz2hlc_script was unable to find FP/F from mtz file:'+file_input_mtz
+        print ('mtz2hlc_script was unable to find FP/F from mtz file:'+file_input_mtz)
         quit()
     mtz2hlc_job_descr.write(' DUM1=')
     FOM=labels_list[types_list.index('W')]
@@ -179,7 +182,7 @@ def mtz2hlc_script ( file_input_mtz , file_output_hlc ):
     elif 'SIGF-obs' in labels_list:
         mtz2hlc_job_descr.write('SIGF-obs')
     else:
-        print 'mtz2hlc_script was unable to find SIGFP/SIGF from mtz file:'+file_input_mtz
+        print ('mtz2hlc_script was unable to find SIGFP/SIGF from mtz file:'+file_input_mtz)
         quit()
 
     ##    HLC=[]
@@ -201,7 +204,7 @@ def mtz2hlc_script ( file_input_mtz , file_output_hlc ):
 
     mtz2hlc_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_hlc], stdin=mtz2hlc_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
     out, err = mtz2hlc_job.communicate()
-    print out
+    print (out)
     mtz2hlc_job_instr.close()
     os.system('rm mtz2hlc_job_instr.txt')
 
@@ -215,7 +218,7 @@ def mtz2hlc_script ( file_input_mtz , file_output_hlc ):
     
 def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=False , mtz_fom=False, mtz_strf=False , count=0, printt=False): #change file to variable
 
-    if printt: print 'Converting',file_input_mtz,'into',file_output_phi
+    if printt: print ('Converting',file_input_mtz,'into',file_output_phi)
 
     mtz2phi_job_descr = open('mtz2phi_job_instr' + str(count) + '.txt', 'w')
 
@@ -242,7 +245,7 @@ def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=F
             elif 'F-obs-filtered' in labels_list:
                 mtz2phi_job_descr.write('F-obs-filtered')
             else:
-                print 'mtz2phi_script was unable to find F/FP/FOBS/F-obs/F-obs-filtered from mtz file:'+file_input_mtz
+                print ('mtz2phi_script was unable to find F/FP/FOBS/F-obs/F-obs-filtered from mtz file:'+file_input_mtz)
                 quit()
         else:
             mtz2phi_job_descr.write(mtz_f)
@@ -265,7 +268,7 @@ def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=F
             elif 'PHIF-model' in labels_list :
                 mtz2phi_job_descr.write('PHIF-model SIGFP=')
             else:
-                print 'mtz2phi_script was unable to find PHIC/PHIFCALC from mtz file:' + file_input_mtz
+                print ('mtz2phi_script was unable to find PHIC/PHIFCALC from mtz file:' + file_input_mtz)
                 quit()
         else: mtz2phi_job_descr.write(mtz_strf)
         if mtz_sigf==False:
@@ -280,7 +283,7 @@ def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=F
             elif 'SIGF-obs-filtered' in labels_list:
                 mtz2phi_job_descr.write('SIGF-obs-filtered \n')
             else:
-                print 'mtz2phi_script was unable to find SIGFP/SIGF/SIGFOBS/SIGF-obs/SIGF-obs-filtered from mtz file:'+file_input_mtz
+                print ('mtz2phi_script was unable to find SIGFP/SIGF/SIGFOBS/SIGF-obs/SIGF-obs-filtered from mtz file:'+file_input_mtz)
                 quit()
         else:
             mtz2phi_job_descr.write(mtz_sigf+' \n')
@@ -296,14 +299,14 @@ def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=F
     #print out
     mtz2phi_job_instr.close()
     if not os.path.isfile(file_output_phi):
-        print '\n\n\n\n\n\nFAILURE IN FUNCTION RJB_LIB.mtz2phi_script CONVERTING',file_input_mtz,'TO',file_output_phi
-        print 'Command used:'
-        print 'mtz2various', 'HKLIN', file_input_mtz, 'HKLOUT', file_output_phi, mtz2phi_job_instr
-        print 'Instruction file:,mtz2phi_job_instr'+str(count)+'.txt'
-        print 'out:'
-        print out
-        print 'err'
-        print err
+        print ('\n\n\n\n\n\nFAILURE IN FUNCTION RJB_LIB.mtz2phi_script CONVERTING',file_input_mtz,'TO',file_output_phi)
+        print ('Command used:')
+        print ('mtz2various', 'HKLIN', file_input_mtz, 'HKLOUT', file_output_phi, mtz2phi_job_instr)
+        print ('Instruction file:,mtz2phi_job_instr'+str(count)+'.txt')
+        print ('out:')
+        print (out)
+        print ('err')
+        print (err)
         mtz2phi_job_instr.close()
         quit()
     else:
@@ -331,7 +334,7 @@ def phs2mtz_script ( file_input_phs , instructions , file_output_mtz ):
     elif 'FOBS' in labels_list :
         mtz2phi_job_descr.write('FOBS')
     else:
-        print 'mtz2phi_script was unable to find F/FP/FOBS from mtz file:'+file_input_mtz
+        print ('mtz2phi_script was unable to find F/FP/FOBS from mtz file:'+file_input_mtz)
         quit()
     mtz2phi_job_descr.write(' DUM1=')
     FOM=labels_list[types_list.index('W')]
@@ -345,7 +348,7 @@ def phs2mtz_script ( file_input_phs , instructions , file_output_mtz ):
     elif 'SIGFOBS' in labels_list :
         mtz2phi_job_descr.write('SIGFOBS \n')
     else:
-        print 'mtz2phi_script was unable to find SIGFP/SIGF from mtz file:'+file_input_mtz
+        print ('mtz2phi_script was unable to find SIGFP/SIGF from mtz file:'+file_input_mtz )
         quit()
 
     mtz2phi_job_descr.write("OUTPUT USER '(3I4,F9.2,F6.3,F7.1,F8.2)' \n")
@@ -355,7 +358,7 @@ def phs2mtz_script ( file_input_phs , instructions , file_output_mtz ):
 
     mtz2phi_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi], stdin=mtz2phi_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
     out, err = mtz2phi_job.communicate()
-    print out
+    print (out)
     mtz2phi_job_instr.close()
     #os.system('rm mtz2phi_job_instr.txt')
 
@@ -413,10 +416,10 @@ def extract_table_to_list_of_dict_with_first_line_as_key ( input_file ): #script
 def from_list_dic_generate_dic_dic_lists_chosen_index ( list_dic_all , chosen_key  ):
     dic_dic_list_all={}
     if not chosen_key in list_dic_all[0]:
-        print 'Chosen key does not exist in given list of dics. Failure in RJB_lib.from_list_dic_generate_dic_dic_lists_chosen_index.'
-        print '\nExisting keys are:'
+        print ('Chosen key does not exist in given list of dics. Failure in RJB_lib.from_list_dic_generate_dic_dic_lists_chosen_index.')
+        print ('\nExisting keys are:')
         for key in sorted(list_dic_all[0]):
-            print key
+            print (key )
         exit()
     for dic in list_dic_all:
         try:
@@ -467,7 +470,7 @@ def generate_deviation_by_resid ( out_input_file , amino_acid_list_3L , out_outp
     try:
         columns=out_file_list[0].split() #column of first line
     except:
-        print "\n\n*******" + out_input_file, "should contain more values:",out_file_list , "*******\n\n"
+        print ("\n\n*******" + out_input_file, "should contain more values:",out_file_list , "*******\n\n")
         return None
     #part that writes in a list, columns that should be saved in new table file
     columns_chosen=[] #columns to be inserted in 
@@ -611,8 +614,8 @@ def mean_dev_return_good_value ( input , type_of_variable ) :
         else:
             input='%.1f'%(input)
     else:
-        print 'exception with value: '+input
-        print 'quitting'
+        print ('exception with value: '+input)
+        print ('quitting')
         exit()
     return input
 
@@ -863,10 +866,10 @@ def mtzfix (file_input,file_output,type_refinement_program):
         out, err = mtzfix_job.communicate()
         #print out[-110:]
         if not os.path.isfile( file_output ):
-            print "mtzfix did not generate mtzfixfile, previous file",file_input," being used."
+            print ("mtzfix did not generate mtzfixfile, previous file",file_input," being used.")
             os.system("cp "+file_input+" "+file_output)
         else:
-            print "mtzfix performed correctly in file:",file_input
+            print ("mtzfix performed correctly in file:",file_input)
 
 def RSZD_calculation (file_mtz, file_pdb , file_out , type_refinement_program): #script generated ?, upgraded for evaluating coot output mtz in May, 4th 2016 
     #type_refinement_program = refmac buster sigmaa (coot)
@@ -891,7 +894,7 @@ def RSZD_calculation (file_mtz, file_pdb , file_out , type_refinement_program): 
     #     fft_script ( file_mtz_fix , file_map_fo , 'FWT' , 'PHWT' )
     #     fft_script ( file_mtz_fix , file_map_df , 'DELFWT' , 'PHDELWT'  )
     else:
-        print 'Unable to find if mtz file '+file_mtz+' was coming from BUSTER or REFMAC or sigmaa (coot>get-eds-pdb-and-mtz), thus unable to generate edstats .out file'
+        print ('Unable to find if mtz file '+file_mtz+' was coming from BUSTER or REFMAC or sigmaa (coot>get-eds-pdb-and-mtz), thus unable to generate edstats .out file')
     #extract resolution from mtz with mtzdmp
     low_res,high_res=extract_resolution_from_mtz(file_mtz)
     #generate out through edstats
@@ -910,7 +913,7 @@ def RSZD_calculation_delete (file_mtz, file_pdb , file_out , type_refinement_pro
         fft_script ( file_mtz_fix , file_map_fo , 'FWT' , 'PHWT' )
         fft_script ( file_mtz_fix , file_map_df , 'DELFWT' , 'PHDELWT'  )
     else:
-        print 'Unable to find if mtz file '+file_mtz+' was coming from BUSTER or REFMAC or sigmaa (coot>get-eds-pdb-and-mtz), thus unable to generate edstats .out file'
+        print ('Unable to find if mtz file '+file_mtz+' was coming from BUSTER or REFMAC or sigmaa (coot>get-eds-pdb-and-mtz), thus unable to generate edstats .out file')
     #extract resolution from mtz with mtzdmp
     low_res,high_res=extract_resolution_from_mtz(file_mtz)
     #generate out through edstats
@@ -1132,7 +1135,7 @@ def given_two_sequences_return_identity_similarity(seq1_string,seq2_string):
 ##    print "seq1:",seq1_string
 ##    print "seq2:",seq2_string
     if len (seq1_string)!=len(seq2_string):
-        print seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")"
+        print (seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")")
         exit()
     for i in seq1_string:
         for key in dictio_similarity:
@@ -1168,7 +1171,7 @@ def remove_given_list_characters_of_both_strings_together (seq1_string,seq2_stri
 ##    print seq1_string
 ##    print seq2_string
     if len (seq1_string)!=len(seq2_string):
-        print seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")"
+        print (seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")")
         exit()
     list_unwanted_indices=[]
     for char in list_characters:
@@ -1209,7 +1212,7 @@ def given_two_sequences_return_evaluated_identity_similarity(seq1_string,seq2_st
 ##    print "seq2:",seq2_string
     total_string=len(seq1_string)
     if len (seq1_string)!=len(seq2_string):
-        print seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")"
+        print (seq1_string,seq2_string,"with different lengths (",len (seq1_string),len(seq2_string),")")
         exit()
     for i in seq1_string:
         for key in dictio_similarity:
@@ -1260,7 +1263,7 @@ def refine_refmac_multiprocesses ( pdb_input_file , mtz_input_file , pdb_output_
     refmacTMP.close()
     refmac_output_log.close()
     if not os.path.isfile( xyzout ):
-        print 'ERROR in refinement.\nFile',xyzout,'not generated.'
+        print ('ERROR in refinement.\nFile',xyzout,'not generated.')
         exit()
 
 def sh_refine_refmac_multiprocesses ( pdb_input_file , mtz_input_file , pdb_output_file , refmac_tmp_file , refmac_path , sh_file , distribute_computing ):
@@ -1348,7 +1351,7 @@ def number_of_processor():
     nproc_file=open("nproc","r")
     nproc=int(nproc_file.read())
     nproc_file.close()
-    print nproc,"cores found"
+    print (nproc,"cores found")
     return nproc
 
 def extract_wWPE_from_lst (lst_file): #Script generated in July 17th 2015 for script EDSTATS_ARCIMBOLDO_evaluation.py
@@ -1386,7 +1389,7 @@ def extract_CC_from_lst (lst_file): #Script generated in July 17th 2015 for scri
 
 def massimoLIB_readCCValFromSUM (sumPath):
     if not os.path.exists(sumPath):
-        print sumPath,"does not exist"
+        print (sumPath,"does not exist")
         exit()
     f = open(sumPath,"r")
     sum_list = f.readlines()
@@ -1445,7 +1448,7 @@ def run_Scwrl4_multiprocess (pdb_input, seq_input, pdb_output, log_output , Scwr
     file.write(out)
     file.close()
     if not os.path.isfile( pdb_output ):
-        print 'ERROR in Scwrl4 generation.\nFile',pdb_output,'not generated.'
+        print ('ERROR in Scwrl4 generation.\nFile',pdb_output,'not generated.')
         exit()
     add_Bfactors_occup_to_pdb(pdb_input_file=pdb_output, pdb_output_file=pdb_output,Bf_number_in_string_6characters=' 20.00', occ_number_in_string_3characters='1.00')
 
@@ -1454,10 +1457,10 @@ def run_Scwrl4_singleprocess (pdb_input, seq_input, pdb_output, log_output) :
     Scwrl4_path=which_program ("Scwrl4")
     options_Scwrl4=' -h -t -# '
     os.system(Scwrl4_path+' -i '+pdb_input+' -o '+pdb_output+' -s '+seq_input+options_Scwrl4+" > "+log_output)
-    print "pdb_input is:",pdb_input
-    print "pdb_output is:",pdb_output
-    print "seq_input is:",seq_input
-    print "log_output is:",log_output
+    print ("pdb_input is:",pdb_input)
+    print ("pdb_output is:",pdb_output)
+    print ("seq_input is:",seq_input)
+    print ("log_output is:",log_output)
 
 def coot_ROTAMER_automatic_refinement ( input_PDB_file , input_map_file , output_file , number_process , coot_path=False ) :
     script_file=open('coot_script_'+str(number_process),'w')
@@ -1472,7 +1475,7 @@ def coot_ROTAMER_automatic_refinement ( input_PDB_file , input_map_file , output
     os.system( coot_path +' --pdb ' + input_PDB_file + ' --auto ' + input_map_file + ' --no-guano -s coot_script_'+str(number_process)+' --no-graphics > log_coot_ROTAMER'+str(number_process))
     os.system( 'rm coot_script_'+str(number_process)+" log_coot_ROTAMER"+str(number_process))
     if not os.path.isfile( output_file ):
-        print 'ERROR in COOT MODELING.\nFile',output_file,'not generated.'
+        print ('ERROR in COOT MODELING.\nFile',output_file,'not generated.')
         exit()
 
 # line: coot --pdb input_PDB_file --auto input_map_file --no-guano -s coot_script --no-graphics > log_coot_ROTAMER    
@@ -1484,7 +1487,7 @@ def coot_ROTAMER_automatic_refinement ( input_PDB_file , input_map_file , output
 
 def coot_py_script_rotamer_sphere_refine ( pdb , dic , outputCootPy , output_pdb  , radius_sph_ref=5 , removeWAT=False ): #Script created Dec5,2016. Dic should be: dic[chain][resnumb]=False if no mutation is desired or dic[chain][resnumb]='aminoacid_1L' if mutation is desired
     if not outputCootPy.endswith('.py'):
-        print 'wrong variable outputCootPy',outputCootPy,'given in function RJB_lib.coot_py_script_sphere_refine'
+        print ('wrong variable outputCootPy',outputCootPy,'given in function RJB_lib.coot_py_script_sphere_refine')
         exit()
     if removeWAT:
         line_remWAT="for resi in other_residues:\n    chain=resi[0]\n    resnumb=resi[1]\n    resi_name=resname_from_serial_number (0,chain,resnumb)\n    if resi_name=='WAT' or resi_name=='HOH': delete_atom (0 , chain, resnumb , '' , resi_name , '' ) \nother_residues = residues_near_residue(0, centred_residue, "+str(radius_sph_ref)+")\n"
@@ -1548,7 +1551,7 @@ def coot_run_rotamer_sphere_refinement ( input_PDB_file , input_mtz_file , outpu
     os.system( coot_path +' --pdb ' + input_PDB_file + ' --auto ' + input_mtz_file + ' --no-guano -s '+outputCootPy+' --no-graphics > '+outputCootPy+'_log')
     os.system( 'rm '+outputCootPy+' '+outputCootPy+'_log')
     if not os.path.isfile( output_file ):
-        print 'ERROR in COOT MODELING.\nFile',output_file,'not generated.'
+        print ('ERROR in COOT MODELING.\nFile',output_file,'not generated.')
         exit()
 
 def coot_run_rotamer_sphere_refinement_multi ( input_PDB_file , input_mtz_file , output_pdb , outputCootPy , dic , radius_sph_ref=5  , removeWAT=False , coot_path=False ) : #Script created Dec5,2016
@@ -1564,9 +1567,9 @@ def coot_run_rotamer_sphere_refinement_multi ( input_PDB_file , input_mtz_file ,
     #file.close()
     #os.system( 'rm '+outputCootPy+' '+outputCootPy+'_log')
     if not os.path.isfile( output_pdb ):
-        print 'ERROR in COOT MODELING.\nFile',output_pdb,'not generated.'
-        print out
-        print err
+        print ('ERROR in COOT MODELING.\nFile',output_pdb,'not generated.')
+        print (out)
+        print (err)
         exit()
 
 def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=False, radius_sph_ref=5, removeWAT=False , coot_path=False , printtt=False): #Script created Dec5,2016 dic_pdb should come from fn [{ return_dic_chain_resnumb_restype (pdb) }]
@@ -1576,7 +1579,7 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
     dic_impres=return_impartial_res (pdb)
     for ch,dresnrest in dic.iteritems():
         for i,lmut in dresnrest.iteritems():
-            if printtt: print 'SEQ',i,'in chain',ch,'in PDB was originnaly',dic_pdb[ch][i]
+            if printtt: print ('SEQ',i,'in chain',ch,'in PDB was originnaly',dic_pdb[ch][i])
             try:
                 if dic[ch][i]!=dic_pdb[ch][i] or dic_impres[ch][i]==dic[ch][i]:
                     try:
@@ -1590,13 +1593,13 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
     if len(dic_new_res)>0:
         for ch,dii in dic_new_res.iteritems():
             for i,rest in dii.iteritems():
-                if printtt: print 'New assigned residue in chain',ch,'by coot is:',rest
+                if printtt: print ('New assigned residue in chain',ch,'by coot is:',rest)
         if not os.path.isfile(outpdb):
             coot_run_rotamer_sphere_refinement_multi( input_PDB_file=pdb , input_mtz_file=mtz_phases , output_pdb=outpdb , outputCootPy=outpdb[:-3]+'py' , dic=dic_new_res , radius_sph_ref=radius_sph_ref , removeWAT=removeWAT , coot_path=coot_path )
         if not os.path.isfile(outpdb):
-            print 'ERROR in COOT MODELING.\nFile',outpdb,'not generated.'
+            print ('ERROR in COOT MODELING.\nFile',outpdb,'not generated.')
             exit()
-        if printtt: print '\n\n'
+        if printtt: print ('\n\n')
     else:
         if not os.path.isfile(outpdb):
             remove_Bfactor_occ_res_pdb (pdb_input=pdb,pdb_output=outpdb,dic_ch_resn=dic)
@@ -1687,9 +1690,9 @@ def remove_Bfactor_occ_res_pdb (pdb_input,pdb_output,dic_ch_resn,AtomsExclude=['
     AtomsInclude=set(AtomsInclude)
     #AtomsExclude=['CA','N ','C ','O ']
     if len( AtomsExclude.intersection(AtomsInclude) ) > 0 :
-        print 'AtomsExclude and AtomsInclude has(ve)',len( AtomsExclude.intersection(AtomsInclude) ),'identical atoms, lists should contain no identical atoms.'
-        print 'AtomsExclude:',AtomsExclude
-        print 'AtomsInclude',AtomsInclude
+        print ('AtomsExclude and AtomsInclude has(ve)',len( AtomsExclude.intersection(AtomsInclude) ),'identical atoms, lists should contain no identical atoms.')
+        print ('AtomsExclude:',AtomsExclude)
+        print ('AtomsInclude',AtomsInclude)
         exit()
 
     for l in f:
@@ -1788,7 +1791,7 @@ def run_phenix_polder_multiproc ( pdb , mtz , dic , output , polder_path=False ,
     if not output_mtz:
         if os.path.isfile(pdb[:-4].split('/')[-1]+'_polder_map_coeffs.mtz'): os.system('rm ./'+pdb[:-4].split('/')[-1]+'_polder_map_coeffs.mtz')
     if not os.path.isfile(output):
-        print 'Failure in RJB_lib.run_phenix_polder_multiproc function, polder log file not created'
+        print ('Failure in RJB_lib.run_phenix_polder_multiproc function, polder log file not created')
         exit()
     #os.system('mv polder.log '+output+'.log')
     #os.system('mv '+pdb[:-4]+'_polder_map_coeffs.mtz '+output+'.mtz')
@@ -1826,7 +1829,7 @@ def extract_CC_R_Rfree_from_polder_log (log,printtt=False): #Script created Dec5
         stcc12='%.2f'%(cc12)
         stcc13='%.2f'%(cc13)
         stcc23='%.2f'%(cc23)
-        if printtt: print 'phenix.polder map ('+log+') should not be used, since the density in the OMIT region resembles to bulk solvent density, as seen by CC(1,2){'+stcc12+'} and CC(2,3){'+stcc23+'} are larger or comparable to CC(1,3){'+stcc13+'}.'
+        if printtt: print ('phenix.polder map ('+log+') should not be used, since the density in the OMIT region resembles to bulk solvent density, as seen by CC(1,2){'+stcc12+'} and CC(2,3){'+stcc23+'} are larger or comparable to CC(1,3){'+stcc13+'}.')
         return False
 
 
@@ -2020,7 +2023,7 @@ def given_list_of_possible_res_write_seqfile_for_SLIDER_POINTMUTATION ( list_of_
             i=len(item)
 
     for line_output in range(i):
-        print "line",i
+        print ("line",i)
         for seq_number in range (len(list_of_residues)):
     ##        print "seq_number:",seq_number
     ##        print "with content",seq[seq_number]
@@ -2088,7 +2091,7 @@ def retrieve_Rfactor_from_PDB_file ( PDB_file ): #copied from SLIDER_POINTMUTATI
                 skipp=True
 
     if R_factor=='' and Rfree=='':
-        print 'Failure obtaining R/Rfree of PDB',PDB_file,'EXITING.'
+        print ('Failure obtaining R/Rfree of PDB',PDB_file,'EXITING.')
         quit()
     else: return R_factor,Rfree
 
@@ -2106,7 +2109,7 @@ def retrieve_CC_ampl_from_PDB_file ( PDB_file ):
                 CC_ampl_free_float=float ( PDB_CC_ampl_list[PDB_CC_ampl_].split()[7] )
     try: return CC_ampl_float, CC_ampl_free_float
     except:
-        print 'Failure retrieving CC_ampl from',PDB_file,'assuming -1 as value to prevent failure'
+        print ('Failure retrieving CC_ampl from',PDB_file,'assuming -1 as value to prevent failure')
         CC_ampl_float=-1.0
         CC_ampl_free_float=-1.0
         return CC_ampl_float,CC_ampl_free_float
@@ -2145,7 +2148,7 @@ def refine_buster_multiprocesses ( pdb_input , mtz_input , pdb_output , buster_p
     #rename_compress_remove_BUSTER_jobs ( folder_output , dictionary_buster['folder'] , file_name )
     rename_chosen_outputname_compress_remove_BUSTER_jobs ( folder , pdb_output[:-4] , list_keep)
     if not os.path.isfile( pdb_output ):
-        print '\n\n\nERROR in refinement.\nFile',pdb_output,'not generated.\n\n\n'
+        print ('\n\n\nERROR in refinement.\nFile',pdb_output,'not generated.\n\n\n')
         exit()
 
 def sh_refine_buster_multiprocesses ( pdb_input , mtz_input , pdb_output , buster_path , sh_file , distribute_computing , buster_options='-noWAT -nbig 10 -RB -nthread 1  UsePdbchk="no"' ):
@@ -2289,8 +2292,8 @@ def retrieve_busterCC_from_log_file ( log_file ): # old, I dont know why but thi
     #         CCsc = float(l[-1])
         else: i+=1
     if CCmc == 0:
-        print 'Condition not found in',log_file
-        print 'Failure in function RJB_lib.retrieve_busterCC_from_log_file'
+        print ('Condition not found in',log_file)
+        print ('Failure in function RJB_lib.retrieve_busterCC_from_log_file')
         exit()
     return CCmc , CCsc
 
@@ -2320,7 +2323,7 @@ def separate_PDB_file_by_chains (pdb_input):
     file=open(pdb_input,'r')
     file_list=file.readlines()
     file.close()
-    print "PDB file:",pdb_input
+    print ("PDB file:",pdb_input)
     for chain in chain_list:
         output_by_chain=open(pdb_input[:-4]+"_"+chain+".pdb","w")
         for line in file_list:
@@ -2331,7 +2334,7 @@ def separate_PDB_file_by_chains (pdb_input):
         else:
             output_by_chain.write(line)
         output_by_chain.close()
-        print "PDB file: ",pdb_input[:-4]+"_"+chain+".pdb","containing chain",chain,"has just been written."
+        print ("PDB file: ",pdb_input[:-4]+"_"+chain+".pdb","containing chain",chain,"has just been written.")
                     
 
 def removekey(d, key):
@@ -2346,7 +2349,7 @@ def remove_empty_keys_in_dictionary (dictio):
             remove_keys.append(key)
     for key in remove_keys:
         del dictio[key]
-        print key,"removed from dictionary"
+        print (key,"removed from dictionary")
 
 
 def separate_discontinuous_residues_in_chains (pdb_input,pdb_output):
@@ -2599,10 +2602,10 @@ def PDB_measure_distance (pdb_input, residue_number1 , atom1 , chain1 , residue_
 ##        print list1
 ##        print list2
         distance=CalculateEuclidianDistance (list1,list2)
-        print "PDB file: ",pdb_input,"with distance of",distance,"Angstron", "between",atom1+str(residue_number1)+chain1,"and",atom2+str(residue_number2)+chain2
+        print ("PDB file: ",pdb_input,"with distance of",distance,"Angstron", "between",atom1+str(residue_number1)+chain1,"and",atom2+str(residue_number2)+chain2)
         return distance
     except:
-        print "Failure:",pdb_input, residue_number1 , atom1 , chain1 , residue_number2 , atom2 , chain2
+        print ("Failure:",pdb_input, residue_number1 , atom1 , chain1 , residue_number2 , atom2 , chain2)
         return 0
 
 def CalculateEuclidianDistance (v1,v2):
@@ -2612,7 +2615,7 @@ def CalculateEuclidianDistance (v1,v2):
         #distance=numpy.sqrt( (list1[0]-list2[0])**2 + (list1[1]-list2[1])**2 + (list1[2]-list2[2])**2 )
         return distance
     else:
-        print "Different vectors lengths, correct input. Exiting function RJB_lib.CalculateEuclidianDistance."
+        print ("Different vectors lengths, correct input. Exiting function RJB_lib.CalculateEuclidianDistance.")
         exit()
 
 def read_sequence_from_file_FASTA (seq_file):
@@ -2683,7 +2686,7 @@ def remove_SLIDER_files_keeping_n_models ( number_models_keep , folder_to_be_rem
                 for item_remove in save_files:
                     os.system("rm "+folder_to_be_removed+"/ROTAMER/"+item_remove+"*ROTAMERcoot.pdb"+" "+folder_to_be_removed+"/ROTAMER/"+item_remove+"*ROTAMERcoot_BUSTER.* > /dev/null")                    
         except:
-            print '\n\n', table ,'not found\n\n'
+            print ('\n\n', table ,'not found\n\n')
         
 
 
@@ -2719,8 +2722,8 @@ def extract_info_cavities_Mole2 (cavities_inputfile,number_of_cavity):
     hpo_hpa_pol=[]
     for i,line in enumerate(cavit_file_list):
         if line.startswith('  <Cavity Type="Cavity" ') and line.endswith('" Id="'+str(number_of_cavity)+'">\n'):
-            print 'Desired cavity found:'
-            print line
+            print ('Desired cavity found:')
+            print (line)
             volume=float(line.split()[2][8:-1])
             ii=i+1
             l=cavit_file_list[ii]
@@ -2730,15 +2733,15 @@ def extract_info_cavities_Mole2 (cavities_inputfile,number_of_cavity):
                 l=cavit_file_list[ii+1]
                 if l.replace(' ','').startswith('<PropertiesCharge='):
                     kk=['Charge="','NumPositives="','NumNegatives="','Hydrophobicity="','Hydropathy="','Polarity="']
-                    print 'cavity function extracting values of line:'
-                    print l
+                    print ('cavity function extracting values of line:')
+                    print (l)
                     lista=[]
                     for n,k in enumerate(kk):
                         v=l[l.index(k)+len(k): l[l.index(k)+len(k):].index('"')+l.index(k)+len(k) ]
                         lista.append(v)
                     hpo_hpa_pol.append(lista)
     try:
-        print 'hpo_hpa_pol',hpo_hpa_pol
+        print ('hpo_hpa_pol',hpo_hpa_pol)
         return volume,hpo_hpa_pol
     except:
         return 0
@@ -2750,12 +2753,12 @@ def extract_chemical_info_tunnel_Mole2 (xmlfile,tun_id):
     hpo_hpa_pol=[]
     for i,l in enumerate(f):
         if l.startswith('  <Tunnel Id="'+str(tun_id)):
-            print 'Desired tunnel found:'
-            print l
+            print ('Desired tunnel found:')
+            print (l)
             kk=['Charge="','NumPositives="','NumNegatives="','Hydrophobicity="','Hydropathy="','Polarity="']
             ll=f[i+1]
-            print 'tunnel function extracting values of line:'
-            print ll
+            print ('tunnel function extracting values of line:')
+            print (ll)
             k='Cavity="'
             ncavity=l[l.index(k)+len(k): l[l.index(k)+len(k):].index('"')+l.index(k)+len(k) ]
             for n,k in enumerate(kk):
@@ -2763,8 +2766,8 @@ def extract_chemical_info_tunnel_Mole2 (xmlfile,tun_id):
                 hpo_hpa_pol.append(v)
     tunpdb=xmlfile[:-5]+'_'+str(tun_id)+'.pdb'
     tunVol=extract_info_tunnel_Mole2 (tunnel_input_file=tunpdb)
-    print 'hpo_hpa_pol',hpo_hpa_pol
-    print 'Tunnel volume',tun_id,'calculated from:',tunpdb,tunVol
+    print ('hpo_hpa_pol',hpo_hpa_pol)
+    print ('Tunnel volume',tun_id,'calculated from:',tunpdb,tunVol)
     return hpo_hpa_pol,ncavity,tunVol
 
 
@@ -2776,12 +2779,12 @@ def extract_chemical_info_nparts_tunnel_Mole2 (xmlfile,tun_id,nparts):
     lvalues=[]
     for i,l in enumerate(f):
         if l.startswith('  <Tunnel Id="'+str(tun_id)):
-            print 'Desired tunnel found:'
-            print l
+            print ('Desired tunnel found:')
+            print (l)
             kk=['Charge="','NumPositives="','NumNegatives="','Hydrophobicity="','Hydropathy="','Polarity="']
             ll=f[i+1]
-            print 'tunnel function extracting values of line:'
-            print ll
+            print ('tunnel function extracting values of line:')
+            print (ll)
             k='Cavity="'
             ncavity=l[l.index(k)+len(k): l[l.index(k)+len(k):].index('"')+l.index(k)+len(k) ]
             for n,k in enumerate(kk):
@@ -2792,8 +2795,8 @@ def extract_chemical_info_nparts_tunnel_Mole2 (xmlfile,tun_id,nparts):
             while not lll.startswith('    </Layers>'):#l.startswith('  <Cavity Type="Cavity" ') and not l.startswith('</Cavities>'):
                 #print lll
                 if lll.startswith('      <Layer MinRadius'):
-                    print 'tunnel function extracting values of line:'
-                    print lll
+                    print ('tunnel function extracting values of line:')
+                    print (lll)
                     k='StartDistance="'
                     v=lll[lll.index(k)+len(k): lll[lll.index(k)+len(k):].index('"')+lll.index(k)+len(k) ]
                     k='EndDistance="'
@@ -2802,7 +2805,7 @@ def extract_chemical_info_nparts_tunnel_Mole2 (xmlfile,tun_id,nparts):
                     lista.append(v)
                     ii+=3
                     lll=f[ii]
-                    print lll
+                    print (lll )
                     kk=['Charge="','NumPositives="','NumNegatives="','Hydrophobicity="','Hydropathy="','Polarity="']
                     for n,k in enumerate(kk):
                         #print k
@@ -2818,8 +2821,8 @@ def extract_chemical_info_nparts_tunnel_Mole2 (xmlfile,tun_id,nparts):
             div=float(lengthtunnel)/nparts
             ldiv=[]
             svalues=[]
-            print 'Calculating values'
-            print 'Size of parts of tunnels are:',div
+            print ('Calculating values')
+            print ('Size of parts of tunnels are:',div)
             for i in range(1,nparts+1):
                 ldiv.append(div*i)
             for FlEndT in ldiv:
@@ -2849,7 +2852,7 @@ def extract_chemical_info_nparts_tunnel_Mole2 (xmlfile,tun_id,nparts):
     tunVol=extract_info_tunnel_Mole2 (tunnel_input_file=tunpdb)
     #print 'overallvalues',overallvalues
     #print 'Tunnel volume',tun_id,'calculated from:',tunpdb,tunVol
-    print 'calculated values are:',svalues
+    print ('calculated values are:',svalues)
     return overallvalues,ncavity,tunVol,svalues
 
 
@@ -2909,13 +2912,13 @@ def extract_coordinates (pdb_path, residue , chain , atom=False , exitt=True):
     if check: return [x,y,z]
     else:
         atom=atom.replace(' ','')
-        print "Failure looking for pdb file",pdb_path,'residue', residue , 'chain' ,chain, 'atom','"'+atom+'"'
+        print ("Failure looking for pdb file",pdb_path,'residue', residue , 'chain' ,chain, 'atom','"'+atom+'"')
         if atom=='CB':
-            print "Obtaining theoretical Cb position based on N/C/CA positions using BioPython.\n"
+            print ("Obtaining theoretical Cb position based on N/C/CA positions using BioPython.\n")
             cb=generateGlyCbBioPython(pdbinput=pdb_path, resn=int(residue), chain=chain)
             return cb
         if exitt:
-            'Exiting.'
+            print ('Exiting.')
             exit()
         else: return False
 
@@ -3004,10 +3007,10 @@ def superimpose_dif_seq_chain_rot_angle (pdb_input1_fixed,residue1_1,residue1_2,
     out, err = superimpose_job.communicate()
     #print out
     try:
-        print pdb_input1_fixed[:4],pdb_input2_moving[:4],"lsqkab angle:",out[out.index("  SPHERICAL POLARS OMEGA PHI CHI")+60:out.index("  SPHERICAL POLARS OMEGA PHI CHI")+69]
+        print (pdb_input1_fixed[:4],pdb_input2_moving[:4],"lsqkab angle:",out[out.index("  SPHERICAL POLARS OMEGA PHI CHI")+60:out.index("  SPHERICAL POLARS OMEGA PHI CHI")+69])
         return float(out[out.index("  SPHERICAL POLARS OMEGA PHI CHI")+60:out.index("  SPHERICAL POLARS OMEGA PHI CHI")+69])
     except:
-        print out
+        print (out)
         return "error"
         exit()
 
@@ -3071,7 +3074,7 @@ def superimpose_lsqkab_dif_seq_chain_pdb_atomtype_output (pdb_input1_moving,chai
 ##            print 'PDB moving:',pdb_input1_moving,'\nPDB reference:',pdb_input2_reference,'\nDELTAS:',output_name+'.dat'
 ##            exit()
     else:
-        print 'ERROR in RJB_lib.superimpose_dif_seq_chain_output_pdb function verifying output_options',output_options
+        print ('ERROR in RJB_lib.superimpose_dif_seq_chain_output_pdb function verifying output_options',output_options)
     out, err = superimpose_job.communicate()
     if log:
         log_file=open(output_name+'.log','w')
@@ -3079,18 +3082,18 @@ def superimpose_lsqkab_dif_seq_chain_pdb_atomtype_output (pdb_input1_moving,chai
         log_file.close()
     try:
         if show_rmsd:
-            print 'PDB flexible',pdb_input1_moving,'chain',chain1,'residues',residue1_1,'to',residue1_2,'being superimposed (lsqkab) into PDB reference',pdb_input2_reference,'chain',chain2,'residues',residue2_1,'to',residue2_2,'and saved with filename:'
+            print ('PDB flexible',pdb_input1_moving,'chain',chain1,'residues',residue1_1,'to',residue1_2,'being superimposed (lsqkab) into PDB reference',pdb_input2_reference,'chain',chain2,'residues',residue2_1,'to',residue2_2,'and saved with filename:')
             if xyz:
-                print output_name+'.pdb'
+                print (output_name+'.pdb')
             if deltas:
-                print output_name+'.dat'
+                print (output_name+'.dat')
             if log:
-                print output_name+'.log'
-            print out[out.index("          RMS     XYZ DISPLACEMENT = ")+36:out.index("          RMS     XYZ DISPLACEMENT = ")+44]
+                print (output_name+'.log')
+            print (out[out.index("          RMS     XYZ DISPLACEMENT = ")+36:out.index("          RMS     XYZ DISPLACEMENT = ")+44])
         return out[out.index("          RMS     XYZ DISPLACEMENT = ")+36:out.index("          RMS     XYZ DISPLACEMENT = ")+44]
     except:
-        print out
-        print "error in function RJB_lib.superimpose_dif_seq_chain_output_pdb"
+        print (out)
+        print ("error in function RJB_lib.superimpose_dif_seq_chain_output_pdb")
         return "error in function RJB_lib.superimpose_dif_seq_chain_output_pdb"
         exit()
 
@@ -3135,8 +3138,8 @@ def change_pdb_chain_A_with_B (pdb_input, pdb_output): # used for angle calculat
             elif line[21]=='B':
                 file_out.write(line[:21]+'A'+line[22:])
             else:
-                print 'Script RJB_lib.change_pdb_chain_A_with_B was unable to find chain letter A or B, check following PDB and line if that is the case, check line if that is the case'
-                print pdb_input,line
+                print ('Script RJB_lib.change_pdb_chain_A_with_B was unable to find chain letter A or B, check following PDB and line if that is the case, check line if that is the case')
+                print (pdb_input,line)
         elif line.startswith('REMARK'): file_out.write(line)
     file_out.close()
 
@@ -3231,9 +3234,9 @@ def convert_file_gro_pdb (gro_input, pdb_output): #PROBLEM!!!
                 pdb.write('  1.00 20.00           ')
                 pdb.write(line_split[1][0]+' \n')
             except: #show not used lines
-                print gro_input,'line:\n',line,'\nnot written'
+                print (gro_input,'line:\n',line,'\nnot written')
         else: #show not used lines
-            print gro_input,'line:\n',line,'\nnot written'
+            print (gro_input,'line:\n',line,'\nnot written')
 
 
 def generate_PDB_with_CarbonCentroid7_from_PDB (input_pdb,output_pdb): #generated April 28, 2016 for automatic angle calculation
@@ -3552,8 +3555,8 @@ def convert_pdb_into_pdbRJBdic (pdb_input): #pdbRJBdic[chain][res_number][atom_t
         elif line[:6] in pdb_header_titles:
             pdb_header_list_lines.append(line)
         else:
-            print '\nRJB_lib.pdbRJBdic function >>> Following line was excluded from RJB_lib.pdbRJBdic function'
-            print 'RJB_lib.pdbRJBdic function >>> '+line+'\n'
+            print ('\nRJB_lib.pdbRJBdic function >>> Following line was excluded from RJB_lib.pdbRJBdic function')
+            print ('RJB_lib.pdbRJBdic function >>> '+line+'\n')
     return pdbRJBdic,pdb_header_list_lines
 
 def write_pdb_from_pdbRJBdic (pdbRJBdic,pdb_header_list_lines,output_pdb):
@@ -3591,8 +3594,8 @@ def write_pdb_from_pdbRJBdic (pdbRJBdic,pdb_header_list_lines,output_pdb):
         elif len(atom_type)==4:
             atom_type=' '+atom_type
         else:
-            print 'Error in function RJB_lib.write_pdb_from_pdbRJBdic'
-            print 'Wrong atom_type:',atom_type,'length='+str(len(atom_type))
+            print ('Error in function RJB_lib.write_pdb_from_pdbRJBdic')
+            print ('Wrong atom_type:',atom_type,'length='+str(len(atom_type)))
             exit()
         atom_type=atom_type+' '*(6-len(atom_type))
         res_numb=' '*(4-len(str(res_numb)))+str(res_numb)
@@ -3615,7 +3618,7 @@ def phenix_sec_str_restraints (input_pdb, output_ss , method): # method = [ 'ksd
     if os.path.isfile( input_pdb+'_ss.eff'):
         os.system('mv '+input_pdb+'_ss.eff'+' '+output_ss)
     else:
-        print 'Failure in RJ_lib.phenix_sec_str_restraints function'
+        print ('Failure in RJ_lib.phenix_sec_str_restraints function')
         exit()
 
 def read_pdb_ss_information_return_list_dics (input_ss_eff): #list=[dic(s)] dic keys: 'ss': 'HELIX' or 'SHEET', 'final_res': int, 'initial_res': int, 'length': int, 'chain': letter}
@@ -3819,10 +3822,10 @@ def SLIDER_read_borfile (bor_file):
         sliding_by_ss   = False
 
     if not RemoteHomologous and not sliding_by_ss:
-        print 'Either alignment (pir format) or secondary structure prediction file (PSIPRED) should be provided.'
+        print ('Either alignment (pir format) or secondary structure prediction file (PSIPRED) should be provided.')
         exit()
     elif RemoteHomologous==True and sliding_by_ss==True:
-        print 'Choose one prior information only, either alignment (PIR format) or secondary structure prediction file (PSIPRED).'
+        print ('Choose one prior information only, either alignment (PIR format) or secondary structure prediction file (PSIPRED).')
 
     try:
         refmac_parameters_file = Config.get("GENERAL", "refmac_parameters_file")
@@ -3881,12 +3884,12 @@ def SLIDER_read_borfile (bor_file):
     try:
         Mw = Config.get("SLIDER", 'molecular_weight')
     except:
-        print 'molecular_weight variable not set, use protparam and sequence to obtain protein molecular weight, exiting.'
+        print ('molecular_weight variable not set, use protparam and sequence to obtain protein molecular weight, exiting.')
         exit()
     try:
         nASU = Config.get("SLIDER", 'number_of_component')
     except:
-        print "number_of_component variable not set, use Matthew's Coefficient to obtain most probable number of molecules per Asymmetric Unit, exiting."
+        print ("number_of_component variable not set, use Matthew's Coefficient to obtain most probable number of molecules per Asymmetric Unit, exiting.")
         exit()
 
     try:     shelxe_line = Config.get("SLIDER", 'shelxe_line')
@@ -3905,7 +3908,7 @@ def SLIDER_read_borfile (bor_file):
     except: RandomModels=0
     if RandomModels!=0:
         if RandomModels>1000:
-            print 'Random models given exceeds limit, value setting to 1000.'
+            print ('Random models given exceeds limit, value setting to 1000.')
             RandomModels=1000
         try:
             RandomOnlyEvalSequence=Config.get("SLIDER", "RandomOnlyEvalSequence")
@@ -3943,7 +3946,7 @@ def SLIDER_read_borfile (bor_file):
                 refmac_path = False
                 phenixrefine_path = False
             except:
-                print 'buster path not given in bor file'
+                print ('buster path not given in bor file')
                 exit()
         elif refinement_program == 'phenix.refine':
             try:
@@ -3951,7 +3954,7 @@ def SLIDER_read_borfile (bor_file):
                 refmac_path = False
                 buster_path = False
             except:
-                print 'phenix.refine path not given in bor file'
+                print ('phenix.refine path not given in bor file')
                 exit()
         elif refinement_program == 'refmac':
             try:
@@ -3959,13 +3962,13 @@ def SLIDER_read_borfile (bor_file):
                 phenixrefine_path = False
                 buster_path = False
             except:
-                print 'refmac path not given in bor file'
+                print ('refmac path not given in bor file')
                 exit()
         else:
-            print 'refinement_program should be either buster / phenix.refine / refmac.'
+            print ('refinement_program should be either buster / phenix.refine / refmac.')
             exit()
     except:
-        print 'refinement_program not given in bor file'
+        print ('refinement_program not given in bor file')
         exit()
     try:
         pp_conf=Config.getint("SLIDER", "psipred_confidence_level")
@@ -3996,7 +3999,7 @@ def SLIDER_read_borfile (bor_file):
     try:
         models_by_chain=Config.getint("SLIDER", "models_by_chain")
         if models_by_chain>1000:
-            print 'models_by_chain given exceeds limit, value setting to 1000.'
+            print ('models_by_chain given exceeds limit, value setting to 1000.')
             models_by_chain=1000
     except:
         models_by_chain=100
@@ -4004,7 +4007,7 @@ def SLIDER_read_borfile (bor_file):
     try:
         seq_pushed_refinement=Config.getint("SLIDER", "seq_pushed_refinement")
         if seq_pushed_refinement>1000:
-            print 'seq_pushed_refinement given exceeds limit, value setting to 1000.'
+            print ('seq_pushed_refinement given exceeds limit, value setting to 1000.')
             seq_pushed_refinement=1000
     except:
         seq_pushed_refinement=models_by_chain
@@ -4015,14 +4018,14 @@ def SLIDER_read_borfile (bor_file):
 
     try:
         Config.get("SLIDER", "chosen_chains_independent")
-        print 'Obsolete variable "chosen_chains_independent" was used in borfile, please use "chosen_chains" and separate by , dependent chains and ; independent chains.'
+        print ('Obsolete variable "chosen_chains_independent" was used in borfile, please use "chosen_chains" and separate by , dependent chains and ; independent chains.')
         exitt = True
     except: exitt = False
     if exitt==True: exit()
 
     try:
         Config.get("SLIDER", "chosen_chains_dependent")
-        print 'Obsolete variable "chosen_chains_dependent" was used in borfile, please use "chosen_chains" and separate by , dependent chains and ; independent chains.'
+        print ('Obsolete variable "chosen_chains_dependent" was used in borfile, please use "chosen_chains" and separate by , dependent chains and ; independent chains.')
         exitt = True
     except: exitt = False
     if exitt==True: exit()
@@ -4082,7 +4085,7 @@ def SLIDER_read_borfile (bor_file):
     for ch in DicFixResMod:
         for i in DicFixResMod:
             if i in DicFixResNotMod[ch]:
-                print 'Chosen fixed_residues_modelled and fixed_residues_notmodelled cannot have overlap. They have same residue',i,'in chain',ch,'.'
+                print ('Chosen fixed_residues_modelled and fixed_residues_notmodelled cannot have overlap. They have same residue',i,'in chain',ch,'.')
                 exit()
 
     # if DicFixRes!=False:
@@ -4140,7 +4143,7 @@ def SLIDER_read_borfile (bor_file):
         if    ModelEdge == '1' or ModelEdge.lower() == 'true':  ModelEdge = True
         elif  ModelEdge == '0' or ModelEdge.lower() == 'false': ModelEdge = False
         else:
-            print 'Invalid option given for ModelEdge',ModelEdge
+            print ('Invalid option given for ModelEdge',ModelEdge)
             exit()
     except: ModelEdge = False
 
@@ -4267,39 +4270,39 @@ def generate_fragments_restricting_by_ss ( pdb_file , pdb_dic_seq_ss , list_dics
     resnumb_dic=return_dic_resnumb_list (pdb_file)
     seq_dic=return_dic_sequence (pdb_file)
     dic_variation={}
-    print 'sspred'
+    print ('sspred')
     for i in list_dics_sspred_conf:
-        print i
+        print (i)
 ##    list_seq_keep=[]
 ##    list_chain_keep=[]
 ##    super_list_seq=[]
     count_chain=0
     #for chain in chain_list:
     for chain in chosen_chains:
-##        print '\n\nYEY\n\n', chain
+##        print ('\n\nYEY\n\n', chain)
         res_count=0
         seq=seq_dic[chain]
         ss_string=pdb_dic_seq_ss[chain]
         ss_list=separate_consecutive_letters_string_into_list(ss_string)
         list_chain=[]
         for piece_ss in ss_list:
-##            print 'piece_ss',piece_ss,'length',len(piece_ss)
-##            print 'rescount',res_count
+##            print ('piece_ss',piece_ss,'length',len(piece_ss))
+##            print ('rescount',res_count)
             list_var=[]
             res_count_end=res_count+len(piece_ss)
 ##            list_chain_keep.append(chain)
 ##            list_seq_keep_var=chain_seq[res_count :res_count_end].lower()
-##                print list_var
+##                print (list_var)
             if piece_ss[0]=='H' and len(piece_ss)>=minimum_ss_frag:
 ##                print 'H'
                 count_H_frag=0
                 bigger_fragH=max(list_seqfrags_H, key=len)
                 for fragH in list_seqfrags_H:
-##                    print 'fragH',fragH
-##                    print 'fragH',len(fragH),'piece_ss',len(piece_ss)
+##                    print ('fragH',fragH)
+##                    print ('fragH',len(fragH),'piece_ss',len(piece_ss))
                     #prob= 1 /  float (  (abs( len(fragH)-len(piece_ss))+1 ))
                     prob= 1 /  float (  (abs( len(fragH)-len(piece_ss))+1 ))
-##                    print 'prob',prob
+##                    print ('prob',prob)
                     score=math.log( prob )
                     #score=score / len(piece_ss)
                     if len(fragH)>= (len(piece_ss)-size_frag_tolerance):
@@ -4311,7 +4314,7 @@ def generate_fragments_restricting_by_ss ( pdb_file , pdb_dic_seq_ss , list_dics
                             end=len(fragH)-len(piece_ss)+1
                         for c in range( begin,end ):
                             if c==begin: #this is the condition starting sequence... So size_frag_tolerance may generate A in beginning of seq
-##                                print 'cond1'
+##                                print ('cond1')
                                 for i in range(1,size_frag_tolerance):
                                     seq='a'*i+fragH[:len(piece_ss)-i]
                                     if len(seq)<len(piece_ss):
@@ -4320,9 +4323,9 @@ def generate_fragments_restricting_by_ss ( pdb_file , pdb_dic_seq_ss , list_dics
                                     final_res=init_res+len(piece_ss)-1
                                     score2=score+math.log( 1/float( (i+1)**2 ) )
                                     list_var.append( (seq,init_res,final_res,score2) )
-##                                    print seq
+##                                    print (seq)
                             if c==(end-1): #this is the condition ending sequence... So size_frag_tolerance may generate A in ending of seq
-##                                print 'cond2'
+##                                print ('cond2')
                                 for i in range(1,size_frag_tolerance):
                                     seq=fragH[-len(piece_ss)+i:]
                                     seq+='a'*i
@@ -4332,35 +4335,35 @@ def generate_fragments_restricting_by_ss ( pdb_file , pdb_dic_seq_ss , list_dics
                                     score2=score+math.log( 1/float((i+1)**2) )
                                     if len(seq)==len(piece_ss):
                                         list_var.append( (seq,init_res,final_res,score2) )
-##                                        print seq
+##                                        print (seq)
 ##                                    else:
-##                                        print '\n\n\nREJECTED!!!!\n',seq,'\n\n\n'
+##                                        print ('\n\n\nREJECTED!!!!\n',seq,'\n\n\n')
                             if c>=0:
-##                                print 'cond3'
+##                                print ('cond3')
                                 seq=fragH[c:len(piece_ss)+c]
                                 init_res=list_dicfrags_H[count_H_frag]['initial_res']+c
                                 final_res=init_res+len(piece_ss)-1
                                 list_var.append( (seq,init_res,final_res,score) )
-##                                print seq
-##                        print 'list_var',list_var
+##                                print (seq)
+##                        print ('list_var',list_var)
                     elif len(bigger_fragH)<len(piece_ss):
                         if len(bigger_fragH)-size_frag_tolerance<len(fragH):
-                            print '\nFailure relating SS psipred prediction and SS pdb evaluation.\nA helix with length',len(piece_ss),'was found in chain',chain,'and it is bigger than biggest predicted helix (',len(bigger_fragH),')by PSIPRED. Thus, polyAla will be completed in edges in all possibilities of the helix:',fragH,'with length',len(fragH)
+                            print ('\nFailure relating SS psipred prediction and SS pdb evaluation.\nA helix with length',len(piece_ss),'was found in chain',chain,'and it is bigger than biggest predicted helix (',len(bigger_fragH),')by PSIPRED. Thus, polyAla will be completed in edges in all possibilities of the helix:',fragH,'with length',len(fragH))
                             for c in range( -len(fragH)+len(piece_ss)+1 ):
                                 d=-len(fragH)+len(piece_ss)-c
                                 seq='a'*c+fragH+'a'*d
                                 init_res=list_dicfrags_H[count_H_frag]['initial_res']-c
                                 final_res=init_res+len(piece_ss)-1
                                 list_var.append( (seq,init_res,final_res,score) )
-    ##                        print 'list_var special',list_var
+    ##                        print ('list_var special',list_var)
                     count_H_frag+=1
 ##                    if kill:
 ##                        exit()
             elif piece_ss[0]=='E' and len(piece_ss)>=minimum_ss_frag:
-                print 'In preparation'
+                print ('In preparation')
                 exit()
             else:   #this would be kind of equal to 'if piece_ss[0]=='C':', although len(frag)>=len(minimum_frag) has to be taken into account also
-##                print 'C'
+##                print ('C')
                 seq_var=seq_dic[chain][res_count :res_count_end].lower()
                 list_var.append((seq_var,0,0,0))
 
@@ -4398,17 +4401,17 @@ def generate_fragments_restricting_by_ss_new ( pdb_file , pdb_dic_seq_ss , list_
     count_chain=0
     #for chain in chain_list:
     if show_state:
-        print 'sspred is'
+        print ('sspred is')
     for i,dic_sspred in enumerate(list_dics_sspred_conf):
         if show_state:
-            print dic_sspred['sec_str_pred']
+            print (dic_sspred['sec_str_pred']  )
         list_dics_sspred_conf[i]['index']=i
     if show_state:
-        print '\n'
+        print ('\n' )
     for list_chain in chosen_chains:
         for chain in list_chain:
             if show_state:
-                print '\n\nchain is',chain
+                print ('\n\nchain is',chain)
     ##        print '\n\nYEY\n\n', chain
             res_count=0
             pdb_seq=pdb_seq_dic[chain]
@@ -4416,38 +4419,38 @@ def generate_fragments_restricting_by_ss_new ( pdb_file , pdb_dic_seq_ss , list_
             pdb_ss_list=separate_consecutive_letters_string_into_list(pdb_ss_string)
             pdb_seq_list=given_string_convert_in_list_string_based_on_other_list_strings ( pdb_seq , pdb_ss_list )
             if show_state:
-                print '\npdb_ss_list is',pdb_ss_list
+                print ('\npdb_ss_list is',pdb_ss_list)
             list_var_chain=[]
             list_clean=[]
             if show_state:
-                print 'pdb_seq_list',pdb_seq_list
-                print 'pdb_ss_list',pdb_ss_list
+                print ('pdb_seq_list',pdb_seq_list)
+                print ('pdb_ss_list',pdb_ss_list)
             for ind_piece_pdb,piece_pdb in enumerate(pdb_ss_list):
                 if show_state:
-                    print '\n\n\npiece_pdb is',piece_pdb
+                    print ('\n\n\npiece_pdb is',piece_pdb)
                 list_by_piece=[]
                 if show_state:
-                    print 'accepted minimum legth',len(piece_pdb)>=minimum_ss_frag, len(piece_pdb),'>=',minimum_ss_frag
+                    print ('accepted minimum legth',len(piece_pdb)>=minimum_ss_frag, len(piece_pdb),'>=',minimum_ss_frag)
                 if len(piece_pdb)>=minimum_ss_frag:
                     for dic_sspred in list_dics_sspred_conf:
                         if show_state:
-                            print '\neval',dic_sspred['sec_str_pred'],len(dic_sspred['sec_str_pred'])
-                            print 'same ss',dic_sspred['sec_str_pred'][0]==piece_pdb[0]
-                            print 'size in accordance',(len(dic_sspred['sec_str_pred'])+size_frag_tolerance)>=len(piece_pdb)
+                            print ('\neval',dic_sspred['sec_str_pred'],len(dic_sspred['sec_str_pred']))
+                            print ('same ss',dic_sspred['sec_str_pred'][0]==piece_pdb[0])
+                            print ('size in accordance',(len(dic_sspred['sec_str_pred'])+size_frag_tolerance)>=len(piece_pdb))
                         if dic_sspred['sec_str_pred'][0]==piece_pdb[0] and (len(dic_sspred['sec_str_pred'])+size_frag_tolerance)>=len(piece_pdb):
                             dic_new=dict(dic_sspred)
                             dic_new['pdb_piece_seq']=pdb_seq_list[ind_piece_pdb]
                             list_by_piece.append(dic_new)
                             if show_state:
-                                print 'frag inserted',dic_sspred['sec_str_pred']
+                                print ('frag inserted',dic_sspred['sec_str_pred'])
                     if len(list_by_piece)==0: #a loop a bigger fragment than prediction
                         list_by_piece=[{'sec_str_pred':piece_pdb,'pdb_piece_seq':pdb_seq_list[ind_piece_pdb]}]
                         if show_state:
-                            print 'loop',piece_pdb,'placed'
+                            print ('loop',piece_pdb,'placed')
                 else:
                     list_by_piece=[{'sec_str_pred':piece_pdb,'pdb_piece_seq':pdb_seq_list[ind_piece_pdb]}]
                     if show_state:
-                        print 'number of residues not long enough',piece_pdb,'placed'
+                        print ('number of residues not long enough',piece_pdb,'placed')
                 if len(list_by_piece)==0: # condition with no pdbFrag has the size of any ss prediction
                     chosen_pdb_frags=[]
                     bigger_frag=0
@@ -4461,14 +4464,14 @@ def generate_fragments_restricting_by_ss_new ( pdb_file , pdb_dic_seq_ss , list_
                             list_by_piece.append(dic_new)
                 list_var_chain.append(list_by_piece)
             if show_state:
-                print '\n\n\npdb_ss_list is',pdb_ss_list
-                print '\nPossibilities'
+                print ('\n\n\npdb_ss_list is',pdb_ss_list)
+                print ('\nPossibilities')
                 for ind,i in enumerate(list_var_chain):
                     for ii in i:
                         try:
-                            print ind,ii['sec_str_pred']
+                            print (ind,ii['sec_str_pred'])
                         except:
-                            print ind,'no assignment',ii
+                            print (ind,'no assignment',ii)
             for each_possib in itertools.product(*list_var_chain):
                 prev_i=-1
                 ind_check=True
@@ -4483,11 +4486,11 @@ def generate_fragments_restricting_by_ss_new ( pdb_file , pdb_dic_seq_ss , list_
                 if ind_check:
                     list_clean.append(each_possib)
             if show_state:
-                print '\n\n\nshowing results'
+                print ('\n\n\nshowing results')
                 for pos in list_clean:
                     for p in pos:
-                        print p
-                    print '\n\n'
+                        print (p)
+                    print ('\n\n')
             dic_list_all_seq_variation[chain]=list_clean
     return dic_list_all_seq_variation
 
@@ -4498,7 +4501,7 @@ def given_string_convert_in_list_string_based_on_other_list_strings ( string , l
         l.append(string[c:(c+len(s))])
         c+=len(s)
     if not len(string)==c:
-        print 'RJB_lib.given_string_convert_in_list_string_based_on_other_list_strings function given with different number variables: #characters in list = ',c,'#characters in string',len(string)
+        print ('RJB_lib.given_string_convert_in_list_string_based_on_other_list_strings function given with different number variables: #characters in list = ',c,'#characters in string',len(string))
         exit()
     return l
 
@@ -4508,11 +4511,11 @@ def given_dic_variation_sspred_groups_generated_sequences ( dic_list_all_seq_var
     #dic_list_all_seq_variation=[{'sec_str_pred':'HHHHHHHH','pdb_piece_seq':'ACYRL', 'confidence': '06688524489999999999998230', 'sec_str_pred': 'HHHHHHHHHHHHHHHHHHHHHHHHHH', 'initial_res': 9, 'final_res': 34, 'sequence': 'NEAWVKDTNGFDILMGQFAHNIENIW'}, {'confidence': '4752', 'sec_str_pred': 'EEEE', 'initial_res': 47, 'final_res': 50, 'sequence': 'YVKY'}, {'confidence': '0543', 'sec_str_pred': 'EEEE', 'initial_res': 58, 'final_res': 61, 'sequence': 'SHIN'}, {'confidence': '08998', 'sec_str_pred': 'EEEEE', 'initial_res': 66, 'final_res': 70, 'sequence': 'TITIE'}, {'confidence': '2899999888210', 'sec_str_pred': 'HHHHHHHHHHHHH', 'initial_res': 77, 'final_res': 89, 'sequence': 'PAAHLRRAIIKTL'}, {'confidence': '56750045899999984211', 'sec_str_pred': 'HHHHHHHHHHHHHHHHHHHH', 'initial_res': 130, 'final_res': 149, 'sequence': 'EGRASNFADYLLKNRLKSRS'}, {'confidence': '103442', 'sec_str_pred': 'HHHHHH', 'initial_res': 155, 'final_res': 160, 'sequence': 'IYSVTI'}]
     for chain in dic_list_all_seq_variation:
         if diag:
-            print chain
+            print (chain  )
         pos_all_ch=[]
         for list_dic in dic_list_all_seq_variation[chain]:
             if diag:
-                print list_dic
+                print (list_dic)
             l=[]
             for dic in list_dic:
                 list_var=[]
@@ -4557,7 +4560,7 @@ def given_dic_variation_sspred_groups_generated_sequences ( dic_list_all_seq_var
                                     list_var.append( (seq,init_res,final_res) )
                 elif len(sspred)<len(piece_ss)-size_frag_tolerance and len(dic)>2:
                     assign_seq=dic['sequence']
-                    print '\nFailure relating SS psipred prediction and SS pdb evaluation.\nA helix with length',len(piece_ss),'was found in chain',chain,'and it is bigger than biggest predicted helix by PSIPRED. Thus, polyAla will be completed in edges in all possibilities of the helix:',assign_seq,'with length',len(assign_seq)
+                    print ('\nFailure relating SS psipred prediction and SS pdb evaluation.\nA helix with length',len(piece_ss),'was found in chain',chain,'and it is bigger than biggest predicted helix by PSIPRED. Thus, polyAla will be completed in edges in all possibilities of the helix:',assign_seq,'with length',len(assign_seq))
                     for c in range( -len(assign_seq)+len(piece_ss)+1 ):
                         d=-len(assign_seq)+len(piece_ss)-c
                         seq='a'*c+assign_seq+'a'*d
@@ -4566,7 +4569,7 @@ def given_dic_variation_sspred_groups_generated_sequences ( dic_list_all_seq_var
                         list_var.append( (seq,init_res,final_res) )
     ##                        print 'list_var special',list_var
                 else:
-                    print 'This should not have passed, please evaluate cause.'
+                    print ('This should not have passed, please evaluate cause.')
                     exit()
                 l.append(list_var)
             pos=itertools.product(*l)
@@ -4575,20 +4578,20 @@ def given_dic_variation_sspred_groups_generated_sequences ( dic_list_all_seq_var
         dic_all_possib[chain]=pos_all_ch
 
         if diag:
-            print chain
+            print (chain)
             for each in pos_all_ch:
-                print each
+                print (each)
                 seq=''
                 for i in each:
                     seq+=i[0]
-                print seq
+                print (seq )
                         
     if diag:
         for l in dic_list_all_seq_variation:
             for ll in l:
                 for key in ll:
-                    print ll[key],key
-                print '\n\n'
+                    print (ll[key],key)
+                print ('\n\n')
 
     return dic_all_possib
 
@@ -4640,12 +4643,12 @@ def generate_sequence_combination_restricted_by_tolerance ( dic_variation , slid
 ##                print score
 ##                print 'YEAH!!\n\n\n\n',seq
         dic_possib[chain]=list_var
-    print '\n\nConsidering initial and final residues of each fragment and its sequence assignment, the following was generated by chain:'
+    print ('\n\nConsidering initial and final residues of each fragment and its sequence assignment, the following was generated by chain:')
     for chain in sorted(dic_possib):
-        print 'chain',chain
+        print ('chain',chain)
 ##        print list_possib[i][0][0]
-        print 'number of assigned residues',len(filter(lambda x: x in string.uppercase, dic_possib[chain][-1][0]))
-        print 'number of possible trials:',len(dic_possib[chain]),'\n'
+        print ('number of assigned residues',len(filter(lambda x: x in string.uppercase, dic_possib[chain][-1][0])))
+        print ('number of possible trials:',len(dic_possib[chain]),'\n')
 ##        print 'Seq\tScore'
 ##        for ii in list_possib[i]:
 ##            print ii[0],'\t\t',ii[1]
@@ -4669,11 +4672,11 @@ def organized_possibilities_list_restrict_by_given_numbers ( dic_possib , models
         except:
             pass
         short_dic_possib[chain]=chain_list[:cut]
-    print '\n\nConsidering the scoring function and the chosen number of models to be pushed through refinement, the following was generated by chain:'
+    print ('\n\nConsidering the scoring function and the chosen number of models to be pushed through refinement, the following was generated by chain:')
     for chain,lista in short_dic_possib.iteritems():
-        print 'chain',chain
-        print 'number of assigned residues',max ([ len( filter(lambda y: y in string.uppercase , x[0]) ) for x in lista])
-        print 'number of possible trials:',len(lista),'\n'
+        print ('chain',chain)
+        print ('number of assigned residues',max ([ len( filter(lambda y: y in string.uppercase , x[0]) ) for x in lista]))
+        print ('number of possible trials:',len(lista),'\n')
     return short_dic_possib
 
 def generate_sequences_from_seqcombination_chosenchains ( dic_possib , pdb_file , chosen_chains , models_by_chain , BORGES_MATRIX_listSSpdb , ncs=False ): #script generated for seqslider_uk1.2
@@ -4845,7 +4848,7 @@ def return_tuple_chain_resnumb_restype (pdb_input):#[[('A', 1, 'S'), ('A', 2, 'A
                     tuple=(chain,resnumb,seq)
                     list_var.append(tuple)
                 else:
-                    print 'Compound',res.get_resname() , 'numbered',res.get_id()[1] , 'chained',chain, 'was rejected by RJB_lib.return_tuple_chain_resnumb_restype!'
+                    print ('Compound',res.get_resname() , 'numbered',res.get_id()[1] , 'chained',chain, 'was rejected by RJB_lib.return_tuple_chain_resnumb_restype!')
         list_tuples.append(list_var)
     return list_tuples
 
@@ -4866,7 +4869,7 @@ def return_restype_list (pdb_input,printe=False): #['SAVQFEVSIIKIAGKSGVEEYGSLGCY
                     string_var+=seq
                 except:
                     if printe:
-                        print 'Restype',res.get_resname(),'not a residue, therefore it was not considered.'
+                        print ('Restype',res.get_resname(),'not a residue, therefore it was not considered.')
         list_restype.append(string_var)
     return list_restype
 #
@@ -4887,7 +4890,7 @@ def return_dic_sequence (pdb_input) : #{'A': 'SAVQFEVSIIKIAGKSGVEEYGSLGCYCGSGGAS
                 if res.get_resname() in amino_acid_list_3L:
                     string_var+=amino_acid_list[amino_acid_list_3L.index(res.get_resname())]
                 else:
-                    print 'Compound',res.get_resname() , 'numbered',res.get_id()[1] , 'chained',chain, 'was rejected by RJB_lib.return_dic_sequence!'
+                    print ('Compound',res.get_resname() , 'numbered',res.get_id()[1] , 'chained',chain, 'was rejected by RJB_lib.return_dic_sequence!')
         dic_seq[chain]=string_var
     return dic_seq
 
@@ -4959,11 +4962,11 @@ def remove_partial_res_from_PDB_BioPython ( pdb_input, pdb_output ):
         io = Bio.PDB.PDBIO()
         io.set_structure(struct)
         io.save( pdb_output , FullResSelect() )
-        print 'Script RJB_lib.remove_partial_res_from_PDB_BioPython corrected pdb',pdb_input,'and named to',pdb_output
+        print ('Script RJB_lib.remove_partial_res_from_PDB_BioPython corrected pdb',pdb_input,'and named to',pdb_output)
         add_previous_ATOM_lines_to_pdb ( pdb_input, pdb_output , pdb_output )
-        print 'Script RJB_lib.add_previous_ATOM_lines_to_pdb added header into same name file.'
+        print ('Script RJB_lib.add_previous_ATOM_lines_to_pdb added header into same name file.')
     else:
-        print '\n\nPDB without partial residues.\n\n'
+        print ('\n\nPDB without partial residues.\n\n')
     return verify
 
 def SortResUniChainAfromSHREDDER ( pdb_input, pdb_output ):
@@ -4999,8 +5002,8 @@ def add_previous_ATOM_lines_to_pdb (pdb_input_header, pdb_input_atoms , pdb_outp
 
 def print_list_dics_sspred_conf_in_nice_way (list_dics_sspred_conf):
     for i in range(len(list_dics_sspred_conf)):
-        print 'Fragment',i+1,'of',list_dics_sspred_conf[i]['sec_str_pred'][0],'with length',len(list_dics_sspred_conf[i]['sequence'])
-        print list_dics_sspred_conf[i]['initial_res'],list_dics_sspred_conf[i]['sequence'],list_dics_sspred_conf[i]['final_res'],'\n'
+        print ('Fragment',i+1,'of',list_dics_sspred_conf[i]['sec_str_pred'][0],'with length',len(list_dics_sspred_conf[i]['sequence']))
+        print (list_dics_sspred_conf[i]['initial_res'],list_dics_sspred_conf[i]['sequence'],list_dics_sspred_conf[i]['final_res'],'\n')
         
 
 
@@ -5176,7 +5179,7 @@ def GivenListListMatchCA2PDBsReturnListSequenceByChain(list_CA_trace_related_ent
         except:
             seq+='X'
     list_seq.append(seq)
-    print list_seq
+    print (list_seq)
     return list_seq
 
 
@@ -5370,7 +5373,7 @@ def alignment_score (dic_possib , sequence , post_mortem , true_seq_dic_string )
     new_dic={}
     for chain in sorted (dic_possib):
         element=dic_possib[chain]
-        print 'Aligning and scoring chain',chain,'('+str(len(dic_possib[chain])),'sequences)'
+        print ('Aligning and scoring chain',chain,'('+str(len(dic_possib[chain])),'sequences)')
         list_var=[]
 #_align(sequenceA, sequenceB, match_fn, gap_A_fn, gap_B_fn, penalize_extend_when_opening, penalize_end_gaps, align_globally, gap_char, force_generic, score_only, one_alignment_only)
 #pairwise_tuple=pairwise2.align.localdd (sequence, tuple_elem[0] ,matrix_align,-15,-5) #(1st seq,2nd seq,penalization for opening gap,penalization extending gap)
@@ -5503,8 +5506,8 @@ def obtainRfactorsBUSTERMapOnly (pdbfile):
                 skipp=True
     if len(Rfactor)==1 and len(Rfree)==1: return Rfactor[0],Rfree[0]
     else:
-        print 'More than one line meeting criteria in file',pdbfile,'function RJB_lib.obtainRfactorsBUSTERMapOnly'
-        print Rfactor,Rfree
+        print ('More than one line meeting criteria in file',pdbfile,'function RJB_lib.obtainRfactorsBUSTERMapOnly')
+        print (Rfactor,Rfree)
         exit()
 
 
@@ -5641,7 +5644,7 @@ def read_setup_bor_connection (bor_file):
     if distribute_computing == "remote_grid":
             path_bor = Config.get("CONNECTION", "setup_bor_path")
             if path_bor is None or path_bor == "" or not os.path.exists(path_bor):
-                print colored("ATTENTION: the path given for the setup.bor does not exist.\n Please contact your administrator","red")
+                print (colored("ATTENTION: the path given for the setup.bor does not exist.\n Please contact your administrator","red"))
                 sys.exit(1)
             try:
                 setupbor = ConfigParser.ConfigParser()
@@ -5669,9 +5672,9 @@ def read_setup_bor_connection (bor_file):
                     #SELSLIB2.BORGES_REQUIREMENTS = setupbor.get("CONDOR", "requirements_borges")
                 #SELSLIB2.LOCAL = False
             except:
-                print colored("ATTENTION: Some keyword in your configuration files are missing. Contact your administrator","red")
-                print "Path bor given: ",path_bor
-                print traceback.print_exc(file=sys.stdout)
+                print (colored("ATTENTION: Some keyword in your configuration files are missing. Contact your administrator","red"))
+                print ("Path bor given: ",path_bor)
+                print (traceback.print_exc(file=sys.stdout))
                 sys.exit(1)
     cm=None
 
@@ -5683,7 +5686,7 @@ def read_setup_bor_connection (bor_file):
     elif distribute_computing == "local_grid":
         path_bor = Config.get("CONNECTION", "setup_bor_path")
         if path_bor is None or path_bor == "" or not os.path.exists(path_bor):
-            print colored("ATTENTION: the path given for the setup.bor does not exist.\n Please contact your administrator","red")
+            print (colored("ATTENTION: the path given for the setup.bor does not exist.\n Please contact your administrator","red"))
             sys.exit(1)
         setupbor = ConfigParser.ConfigParser()
         setupbor.readfp(open(path_bor))
@@ -5838,7 +5841,7 @@ def given_table_values_return_table_by_position ( input_table , sorted_by_key , 
                     d[statistic]=list_dic_var.index(dic)
                 #for Table_edstats_overall_X_2
                 else:
-                    print statistic,'not sorted'
+                    print (statistic,'not sorted')
                     d[statistic]='-'
             else:
                 d[l]=dic[l]
@@ -5907,7 +5910,7 @@ def mkdir(folder):
 def shelxe_multiprocesses ( input , shelxe_path , shelxe_options ):
     if shelxe_path=='' or shelxe_path==False:
         shelxe_path=which_program ("shelxe")
-    print 'Shelxe expanding',input,'with options',shelxe_options
+    print ('Shelxe expanding',input,'with options',shelxe_options)
     folder=input[:input.rindex('/')]
     input=input[input.rindex('/')+1:]
     p = subprocess.Popen([shelxe_path,input]+shelxe_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,cwd=folder)
@@ -5972,7 +5975,7 @@ def pisa_assemblies_multiproc (pdb,log):
     os.system('pisa aa -analyse '+pdb+'  --lig=fixed > delete.log')
     os.system('pisa aa -list assemblies > '+log)
     if not os.path.isfile( log ):
-        print 'ERROR in pisa_assemblies_multiproc.\nFile',log,'not generated.'
+        print ('ERROR in pisa_assemblies_multiproc.\nFile',log,'not generated.')
         exit()
 
 
@@ -5982,10 +5985,10 @@ def from_table_write_coot_coordinates (list_ind,file,output_pdb): #list_ind shou
     f=f1.readlines()
     f1.close()
     if not len(f[1].split())>=max(list_ind):
-        print 'Table',file,'has less values than chosen indexes:',list_ind
+        print ('Table',file,'has less values than chosen indexes:',list_ind)
         exit()
     if not len(list_ind)==3:
-        print 'Given numbers for list_ind different than 3'
+        print ('Given numbers for list_ind different than 3')
         exit()
         
     i1=list_ind[0]
@@ -6022,8 +6025,8 @@ def from_table_write_coot_coordinates (list_ind,file,output_pdb): #list_ind shou
             elif len(atom_type)==4:
                 atom_type=' '+atom_type
             else:
-                print 'Error in function from_table_write_coot_coordinates addapted from RJB_lib.write_pdb_from_pdbRJBdic in Oct19,2016'
-                print 'Wrong atom_type:',atom_type,'length='+str(len(atom_type))
+                print ('Error in function from_table_write_coot_coordinates addapted from RJB_lib.write_pdb_from_pdbRJBdic in Oct19,2016')
+                print ('Wrong atom_type:',atom_type,'length='+str(len(atom_type)))
                 exit()
             atom_type=atom_type+' '*(6-len(atom_type))
             res_numb=' '*(4-len(str(res_numb)))+str(res_numb)
@@ -6038,7 +6041,7 @@ def from_table_write_coot_coordinates (list_ind,file,output_pdb): #list_ind shou
             ou.write('ATOM '+atom_numb+atom_type+res_type+' '+chain+res_numb+'     '+X+Y+Z+' '+occupancy+' '+Bfactor+'           '+atom_type.replace(' ','')[0]+'\n')
             at_n+=1
         else:
-            print 'Failure reading line',l,'from file:',file
+            print ('Failure reading line',l,'from file:',file)
             exit()
     ou.write('END')
     ou.close()
@@ -6126,7 +6129,7 @@ def SuperimposeBioPython (pdbfix,lchainfix,lresnumbfix,pdbvar,lchainvar,lresnumb
                     if not at0.get_id().startswith('H'): listresnfix.append( at0 )
 
             else:
-                print 'Wrong variable given to atoms option in function RJB_lib.SuperimposeBioPython . Exiting.'
+                print ('Wrong variable given to atoms option in function RJB_lib.SuperimposeBioPython . Exiting.')
                 exit()
 
     if isinstance(pdbvar, basestring):
@@ -6147,7 +6150,7 @@ def SuperimposeBioPython (pdbfix,lchainfix,lresnumbfix,pdbvar,lchainvar,lresnumb
                     if not at0.get_id().startswith('H'): listresnvar.append( at0 )
 
             else:
-                print 'Wrong variable given to atoms option in function RJB_lib.SuperimposeBioPython . Exiting.'
+                print ('Wrong variable given to atoms option in function RJB_lib.SuperimposeBioPython . Exiting.')
                 exit()
 
 
@@ -6279,7 +6282,7 @@ def extract_RotMatrixTransl_from_log_LSQKAB (LSQKAB_log_file):
     try:
         return RotMatrix , Transl
     except:
-        print 'Failure running extract_RotMatrixTransl_from_log_LSQKAB function, probably "      ROTATION MATRIX:" not found in ',LSQKAB_log_file
+        print ('Failure running extract_RotMatrixTransl_from_log_LSQKAB function, probably "      ROTATION MATRIX:" not found in ',LSQKAB_log_file)
 
 
 
@@ -6290,7 +6293,7 @@ def extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_321 ( RotMa
     try:
         return [psi,theta,phi]
     except:
-        print "Failure running extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_321 function"
+        print ("Failure running extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_321 function")
         exit()
 
 def extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_323 ( RotMatrix ): #RotMatrix in a tuple 3x3 Formulas extracted from: James_Diebel_PDF
@@ -6300,7 +6303,7 @@ def extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_323 ( RotMa
     try:
         return [psi,theta,phi]
     except:
-        print "Failure running extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_323 function"
+        print ("Failure running extract_proper_Tait_Bryan_angles_from_RotMatrix_James_Diebel_PDF_323 function")
         exit()
 
 
@@ -6355,7 +6358,7 @@ def extract_coordinates_n_atom (pdb_path, n_atom ):
     try:
         return [x,y,z]
     except:
-        print "Failure looking for pdb file",pdb_path,'and atom number', n_atom
+        print ("Failure looking for pdb file",pdb_path,'and atom number', n_atom)
         exit()
         
 def formula_plane_from_nvector_point (vp,p):
@@ -6528,7 +6531,7 @@ def output_runline(output_file,printtt=False):
         runline.write(i+' ')
         p+=i+' '
     if printtt:
-        print p
+        print (p)
     runline.close()
 
 def runAREAIMOLccp4 (pdbfile,outpdb,instr_file='areaimol-instructions.ins',areaimolpath='areaimol'):
@@ -6544,7 +6547,7 @@ def runAREAIMOLccp4 (pdbfile,outpdb,instr_file='areaimol-instructions.ins',areai
     instr.close()
     AreaimolLog.close()
     if not os.path.isfile(outpdb):
-        print 'ERROR in areaimol calculation.\nFile', outpdb, 'not generated.'
+        print ('ERROR in areaimol calculation.\nFile', outpdb, 'not generated.')
         exit()
     os.system('rm '+instr_file)
 
@@ -6616,7 +6619,7 @@ def remove_pdb_double_occupancy_atoms_pdb (input_pdb , output_pdb): #adapted fro
 
 
 def phaser_Ani_tNCS_correction (input_mtz,F,SigF,Amplitudes,sh_file,log_file): #Amplitudes should be True or False
-    print 'Running phaser to perform ANISOTROPY and tNCS CORRECTION'
+    print ('Running phaser to perform ANISOTROPY and tNCS CORRECTION')
     f=open(sh_file,'w')
     f.write('#!/bin/tcsh\n')
     f.write('phaser << EOF - phaser\n')
@@ -6636,7 +6639,7 @@ def phaser_Ani_tNCS_correction (input_mtz,F,SigF,Amplitudes,sh_file,log_file): #
     os.system('./'+sh_file+' > ' + log_file)
 
 def PhaserMR_AUTO_Map (InputDataMTZ,FData,SigFData,InputMapMTZ,extent,center,rms,Mw,outputfile,PHASER_path='phaser'):#,FMap='FWT',SigFMap='PHWT'): extend/center=[x,y,z]
-    print 'Running PHASER to perform location of fragment of map',InputMapMTZ,'and saving to',outputfile
+    print ('Running PHASER to perform location of fragment of map',InputMapMTZ,'and saving to',outputfile)
     f=open(outputfile+'.sh','w')
     f.write('#!/bin/tcsh\n')
     f.write(PHASER_path+' << EOF - phaser\n')
@@ -6673,8 +6676,8 @@ def calculate_LLG (input_pdb,input_mtz,SG,F,SigF,Amplitudes,HighRes,Mw,nASU,RMS,
     else:    VRMS='OFF'
     if Gimble: Gimble='ON'
     else:      Gimble='OFF'
-    if not RigidBodyRef: print 'Running phaser to calculate LLG of model:',input_pdb
-    else:                print 'Running phaser to perform Rigid Body Refinement and LLG calculation of model:',input_pdb
+    if not RigidBodyRef: print ('Running phaser to calculate LLG of model:',input_pdb)
+    else:                print ('Running phaser to perform Rigid Body Refinement and LLG calculation of model:',input_pdb)
     f=open(sh_file,'w')
     f.write('#!/bin/tcsh\n')
     f.write('phaser << EOF - phaser\n')
@@ -6769,7 +6772,7 @@ def return_LLG(phaser_log_file):
             #return eLLG,TFZ
             return LLG
     #print 'Failure in function RJB_lib.return_LLG , it did not found eLLG and TFZ, exiting.'
-    print 'Function RJB_lib.return_LLG failed to find LLG in file: '+phaser_log_file+' . Exiting.'
+    print ('Function RJB_lib.return_LLG failed to find LLG in file: '+phaser_log_file+' . Exiting.')
     exit()
 
 def return_VRMS(phaser_log_file):
@@ -6785,7 +6788,7 @@ def return_VRMS(phaser_log_file):
 
 
 def runPhenixMapMtzMtzCC (mtz1,mtz2,log,MtzMtzCC_path='phenix.get_cc_mtz_mtz',keep=False):
-    print 'Running phenix.get_cc_mtz_mtz to calculate MapCC between',mtz1,'and',mtz2
+    print ('Running phenix.get_cc_mtz_mtz to calculate MapCC between',mtz1,'and',mtz2)
     if '/' in log:
         folder=log[:log.rindex('/')+1]
         log=log[log.rindex('/')+1:]
@@ -6809,15 +6812,15 @@ def get_PhenixMapMtzMtzCC (log):
             cci=float(l.split()[2])
             ccf=float(l.split()[-1])
             return cci,ccf
-    print 'Failure obtaining mapCC from file:',log
+    print ('Failure obtaining mapCC from file:',log)
 
 def runPhenixCutMapInBoxGivenCoord (pdb,mtz,outmtz,PhenixCutMap_path='phenix.cut_out_density',keep=False):
-    print 'Running phenix.cut_out_density on box '+pdb+' and mtzmap '+mtz
+    print ('Running phenix.cut_out_density on box '+pdb+' and mtzmap '+mtz)
     os.system(PhenixCutMap_path+' pdb_in='+pdb+' mtz_in='+mtz+' mtz_out='+outmtz+' temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out='+outmtz[:-3]+'eff cutout_fix_position=True cutout_type=box cutout_model_radius=0 cutout_sphere_radius=0 padding=0 > '+outmtz[:-3]+'log')
     if not keep: os.system('rm -r '+outmtz[:-4]+'_temp1 '+outmtz[:-4]+'_output '+outmtz[:-3]+'eff')
 
 def runPhenixCutMapSpherePhenix (pdb,mtz,outmtz,SphereRadius,PhenixCutMap_path='phenix.cut_out_density',keep=False):
-    print 'Running phenix.cut_out_density using phaser defaults settings around a sphere of '+str(SphereRadius)+' around coordinates on '+pdb+' using mtzmap '+mtz+' and saving map in '+outmtz
+    print ('Running phenix.cut_out_density using phaser defaults settings around a sphere of '+str(SphereRadius)+' around coordinates on '+pdb+' using mtzmap '+mtz+' and saving map in '+outmtz)
     os.system(PhenixCutMap_path+' pdb_in='+pdb+' mtz_in='+mtz+' mtz_out='+outmtz+' temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out='+outmtz[:-3]+'eff for_phaser=True cutout_model_radius='+str(SphereRadius)+'  > '+outmtz[:-3]+'log')
     #print     PhenixCutMap_path+' pdb_in='+pdb+' mtz_in='+mtz+' mtz_out='+outmtz+' temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out='+outmtz[:-3]+'eff for_phaser=True cutout_model_radius='+str(SphereRadius)+'  > '+outmtz[:-3]+'log'
     #exit()
@@ -6825,7 +6828,7 @@ def runPhenixCutMapSpherePhenix (pdb,mtz,outmtz,SphereRadius,PhenixCutMap_path='
     if not keep: os.system('rm -r '+outmtz[:-4]+'_temp1 '+outmtz[:-4]+'_output '+outmtz[:-3]+'eff')
 
 def runPhenixCutMapGivenAroundCoord (pdb,mtz,outpdb,outmtz,selection=False,PhenixCutMap_path='phenix.cut_out_density',keep=False):
-    print 'Running phenix.cut_out_density on atoms in '+pdb+' and mtzmap '+mtz
+    print ('Running phenix.cut_out_density on atoms in '+pdb+' and mtzmap '+mtz)
     if selection!=False:
         if 'atom_selection' in selection: sel=selection
         else: sel='atom_selection'+'="'+selection+'"'
@@ -6841,7 +6844,7 @@ def runPhenixCutMapGivenAroundCoord (pdb,mtz,outpdb,outmtz,selection=False,Pheni
 
 
 def runPhenixSuperposeMapsFromModels (pdb1_var,pdb2_fixed,mtz1_var,mtz2_fixed,outpdb,outmtz,selection=False,PhenixCutMap_path='phenix.cut_out_density',keep=False):
-    print 'Running phenix.cut_out_density on atoms in '+pdb+' and mtzmap '+mtz
+    print ('Running phenix.cut_out_density on atoms in '+pdb+' and mtzmap '+mtz)
     if selection!=False:
         if 'atom_selection' in selection: sel=selection
         else: sel='atom_selection'+'="'+selection+'"'
@@ -6970,7 +6973,7 @@ def convertBORGES_MATRIXfrags2listSSpdb (pdbinicial,pdbborgesmatrix):
 def countnumberexpectedATOMS (sequence,nASU):#,resolution):
     atomspermonomer=0
     for i,a in enumerate (amino_acid_list[:-1]):
-        print i,a,sequence.count(a),amino_acid_list_numb_atoms[i]
+        print (i,a,sequence.count(a),amino_acid_list_numb_atoms[i])
         atomspermonomer+= (sequence.count(a) * amino_acid_list_numb_atoms[i])
     atomspermonomer=atomspermonomer*nASU
     #expectedwaters=nASU
@@ -7025,9 +7028,9 @@ def GivenEdstatsOutDicChResnStats12ReturnList (RSS_output_file,DicChResn,Stat1,S
     iCh=llabels.index('CI')
     iResn=llabels.index('RN')
     if Stat1 in llabels: iStat1 = llabels.index(Stat1)
-    else: print Stat1,'not found in',RSS_output_file,'"n/a" value being atributed.'
+    else: print (Stat1,'not found in',RSS_output_file,'"n/a" value being atributed.')
     if Stat2 in llabels: iStat2 = llabels.index(Stat2)
-    else: print Stat2,'not found in',RSS_output_file,'"n/a" value being atributed.'
+    else: print (Stat2,'not found in',RSS_output_file,'"n/a" value being atributed.')
     lvar1 = []
     lvar2 = []
     for l in f[1:]:
@@ -7041,7 +7044,7 @@ def GivenEdstatsOutDicChResnStats12ReturnList (RSS_output_file,DicChResn,Stat1,S
 
 def BestAlignment2StringsReturnIndex (st1,st2):
     if '~' in st1:
-        print '~ in string 1, failure, correct code'
+        print ('~ in string 1, failure, correct code')
         exit()
     st11='~'*(len(st2)-1)+st1+'~'*(len(st2)-1)
     bestscore=0
@@ -7067,7 +7070,7 @@ def BestAlignment2StringsReturnIndex (st1,st2):
 
 def GivenTwoSequencesIdenticalRes(st1,st2):
     if len (st1)!=len(st2):
-        print st1,st2,"with different lengths (",len (st1),len(st2),")"
+        print (st1,st2,"with different lengths (",len (st1),len(st2),")")
         exit()
     id=0
     for i in range(len(st1)):
@@ -7081,7 +7084,7 @@ def CheckHeaderPDB (inputpdb):
         for l in f2:
             if l.startswith('SCALE') or l.startswith('CRYST1'): checknumb+=1
     if checknumb!=4:
-        print 'REQUIRED INFORMATION IN PDB HEADER NOT FOUND (CRYST1/SCALE CARDS). CORRECT THE FILE:',inputpdb
+        print ('REQUIRED INFORMATION IN PDB HEADER NOT FOUND (CRYST1/SCALE CARDS). CORRECT THE FILE:',inputpdb)
         exit()
 
 def ObtainExtentCentreLogPHENIXCutOutDensity (logfile):
@@ -7095,11 +7098,11 @@ def ObtainExtentCentreLogPHENIXCutOutDensity (logfile):
                 extent=l[ l.index('[')+1:l.index(']')].replace(',','')
     if extent!='' and centre!='': return extent , centre
     else:
-        print 'Failure finding string:'
-        print 'Center of cutout region will be from model center at:'
-        print 'and/or'
-        print 'Dimensions of cutout region will be:'
-        print 'in file:',logfile
+        print ('Failure finding string:')
+        print ('Center of cutout region will be from model center at:')
+        print ('and/or')
+        print ('Dimensions of cutout region will be:')
+        print ('in file:',logfile)
         exit()
 
 def ReturnShelxeCCwMPEPdbLlst ( pdb_file,lst_file ):
@@ -7151,7 +7154,7 @@ def ReturnShelxeCCwMPEPdbLlst ( pdb_file,lst_file ):
 
 def PhenixModelVsData (pdb_file,mtz_data,F,output_file,PhenixModelVsData_path=False):
     if not PhenixModelVsData_path: PhenixModelVsData_path='phenix.model_vs_data'
-    print PhenixModelVsData_path+' '+pdb_file+' '+mtz_data+' f_obs_label="'+F+'" comprehensive=true > '+output_file
+    print (PhenixModelVsData_path+' '+pdb_file+' '+mtz_data+' f_obs_label="'+F+'" comprehensive=true > '+output_file)
     os.system(PhenixModelVsData_path+' '+pdb_file+' '+mtz_data+' f_obs_label="'+F+'" comprehensive=true > '+output_file)
 
 def ExtractFromPhenixModelVsDataRSCCallList (log):
@@ -7202,8 +7205,8 @@ def GivenSeqListChResNCASeqReturnStringRef(seqSeqPushRef , listChResNCA , Sequen
     return strvar
 
 def GetFreeMemory():
-    linesfm=subprocess.check_output(['free', '-m']).split('\n')
-    #print linesfm
+    linesfm=subprocess.check_output(['free', '-m'], text=True)
+    linesfm=linesfm.split('\n')
     freemem=float( linesfm[1].split() [linesfm[0].split().index('free')+1] )
     return freemem
     #result = subprocess.run(['free', '-m'], stdout=subprocess.PIPE) #python 3
