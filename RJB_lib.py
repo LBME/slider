@@ -125,7 +125,7 @@ def phs2mtz ( file_input_phs , file_input_mtz , file_output_mtz , printt=False):
     phs2mtz_job_descr.write('CTYPOUT\tH H H F W P Q\n')
     phs2mtz_job_descr.close()
     phs2mtz_job_instr=open('phs2mtz_job_instr.txt','r')
-    phs2mtz_job = subprocess.Popen([ 'f2mtz','HKLIN',file_input_phs,'HKLOUT',file_output_mtz], stdin=phs2mtz_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    phs2mtz_job = subprocess.Popen([ 'f2mtz','HKLIN',file_input_phs,'HKLOUT',file_output_mtz], stdin=phs2mtz_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = phs2mtz_job.communicate()
     if printt: print (out)
     phs2mtz_job_instr.close()
@@ -202,7 +202,7 @@ def mtz2hlc_script ( file_input_mtz , file_output_hlc ):
     mtz2hlc_job_descr.close()
     mtz2hlc_job_instr=open('mtz2hlc_job_instr.txt','r')
 
-    mtz2hlc_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_hlc], stdin=mtz2hlc_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
+    mtz2hlc_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_hlc], stdin=mtz2hlc_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = mtz2hlc_job.communicate()
     print (out)
     mtz2hlc_job_instr.close()
@@ -294,7 +294,7 @@ def mtz2phi_script ( file_input_mtz , file_output_phi , mtz_f=False , mtz_sigf=F
     mtz2phi_job_instr=open('mtz2phi_job_instr'+str(count)+'.txt','r')
     # print 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi
     # exit()
-    mtz2phi_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi], stdin=mtz2phi_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    mtz2phi_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi], stdin=mtz2phi_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = mtz2phi_job.communicate()
     #print out
     mtz2phi_job_instr.close()
@@ -356,7 +356,7 @@ def phs2mtz_script ( file_input_phs , instructions , file_output_mtz ):
     mtz2phi_job_descr.close()
     mtz2phi_job_instr=open('mtz2phi_job_instr.txt','r')
 
-    mtz2phi_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi], stdin=mtz2phi_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
+    mtz2phi_job = subprocess.Popen([ 'mtz2various','HKLIN',file_input_mtz,'HKLOUT',file_output_phi], stdin=mtz2phi_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = mtz2phi_job.communicate()
     print (out)
     mtz2phi_job_instr.close()
@@ -858,11 +858,11 @@ def return_low_high_value_from_out_file ( statistic , txt_input ):
 def mtzfix (file_input,file_output,type_refinement_program):
     if not os.path.isfile( file_output ):
         if 'sigmaa' in type_refinement_program or 'sigmaa' in file_input:
-            mtzfix_job = subprocess.Popen([ 'mtzfix','FLABEL F SIGF FC PHIC FC_ALL PHIC_ALL 2FOFCWT PH2FOFCWT FOFCWT PHFOFCWT FOM'.split(),'HKLIN',file_input,'HKLOUT',file_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            mtzfix_job = subprocess.Popen([ 'mtzfix','FLABEL F SIGF FC PHIC FC_ALL PHIC_ALL 2FOFCWT PH2FOFCWT FOFCWT PHFOFCWT FOM'.split(),'HKLIN',file_input,'HKLOUT',file_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
             #mtzfix_job = subprocess.Popen([ 'mtzfix','FLABEL F SIGF FC PHIC FC_ALL PHIC_ALL 2FOFCWT PH2FOFCWT FOFCWT PHFOFCWT FOM'.split(),'HKLIN',file_input,'HKLOUT',file_output], stdin=fft_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
             #mtzfix_job = subprocess.Popen([ 'mtzfix','HKLIN',file_input,'HKLOUT',file_output], stdin=fft_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            mtzfix_job = subprocess.Popen([ 'mtzfix','HKLIN',file_input,'HKLOUT',file_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            mtzfix_job = subprocess.Popen([ 'mtzfix','HKLIN',file_input,'HKLOUT',file_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
         out, err = mtzfix_job.communicate()
         #print out[-110:]
         if not os.path.isfile( file_output ):
@@ -951,7 +951,7 @@ def fft_script ( file_input_mtz , file_output_map , F , PHI ):
     fft_job_description.write('\nEND')
     fft_job_description.close()
     fft_job_instr=open(file_output_map+'_fft_job.txt', 'r')
-    fft_job = subprocess.Popen([ 'fft','HKLIN',file_input_mtz,'MAPOUT',file_output_map], stdin=fft_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    fft_job = subprocess.Popen([ 'fft','HKLIN',file_input_mtz,'MAPOUT',file_output_map], stdin=fft_job_instr, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = fft_job.communicate()
     fft_job_instr.close()
     os.system('rm '+file_output_map+'_fft_job.txt')
@@ -1258,7 +1258,7 @@ def refine_refmac_multiprocesses ( pdb_input_file , mtz_input_file , pdb_output_
     hklout=xyzout[:-4]+'.mtz'
     cifout=xyzout[:-4]+'.cif'
     refmac_output_log = open(xyzout[:-4]+'.log', 'w')
-    p = subprocess.Popen([refmac_path,'XYZIN',xyzin,'XYZOUT',xyzout,'HKLIN',hklin,'HKLOUT',hklout,'LIBOUT',cifout], stdin=refmacTMP, stdout=refmac_output_log, stderr=subprocess.PIPE)
+    p = subprocess.Popen([refmac_path,'XYZIN',xyzin,'XYZOUT',xyzout,'HKLIN',hklin,'HKLOUT',hklout,'LIBOUT',cifout], stdin=refmacTMP, stdout=refmac_output_log, stderr=subprocess.PIPE , text=True)
     out, err = p.communicate()
     refmacTMP.close()
     refmac_output_log.close()
@@ -1438,7 +1438,7 @@ def massimoLIB_readCCValFromSUM (sumPath):
 def run_Scwrl4_multiprocess (pdb_input, seq_input, pdb_output, log_output , Scwrl4_path ) :
     #Scwrl4_path=which_program ("Scwrl4")
     options_Scwrl4='-h -t -#'
-    p = subprocess.Popen ( [Scwrl4_path,'-i',pdb_input,'-o',pdb_output,'-s',seq_input]+options_Scwrl4.split(),stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    p = subprocess.Popen ( [Scwrl4_path,'-i',pdb_input,'-o',pdb_output,'-s',seq_input]+options_Scwrl4.split(),stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
 ##    print "pdb_input is:",pdb_input
 ##    print "pdb_output is:",pdb_output
 ##    print "seq_input is:",seq_input
@@ -1560,7 +1560,7 @@ def coot_run_rotamer_sphere_refinement_multi ( input_PDB_file , input_mtz_file ,
         coot_path='coot'
     #os.system( coot_path +' --pdb ' + input_PDB_file + ' --auto ' + input_mtz_file + ' --no-guano -s '+outputCootPy+' --no-graphics > '+outputCootPy+'_log')
     #print coot_path,'--pdb',input_PDB_file,'--auto',input_mtz_file,'--no-guano','-s',outputCootPy,'--no-graphics'
-    p = subprocess.Popen([coot_path,'--pdb',input_PDB_file,'--auto',input_mtz_file,'--no-guano','-s',outputCootPy,'--no-graphics'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([coot_path,'--pdb',input_PDB_file,'--auto',input_mtz_file,'--no-guano','-s',outputCootPy,'--no-graphics'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = p.communicate()
     #file=open(output_pdb[:-4]+'_coot.log','w')
     #file.write(out)
@@ -1778,10 +1778,10 @@ def run_phenix_polder_multiproc ( pdb , mtz , dic , output , polder_path=False ,
                 elif sidechain=='OnlyMainChain': selection+=' and (name C or name N or name O or name CA)'
     selection+='"'
     if not output_mtz:
-        p = subprocess.Popen([polder_path,pdb,mtz,selection], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([polder_path,pdb,mtz,selection], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
         #p = subprocess.Popen([polder_path,pdb,mtz,selection,'data_labels="F_XDSdataset"'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        p = subprocess.Popen([polder_path,pdb,mtz,selection,'output_file_name_prefix='+output], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen([polder_path,pdb,mtz,selection,'output_file_name_prefix='+output], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
         #p = subprocess.Popen([polder_path,pdb,mtz,selection,'output_file_name_prefix='+output[:-4],'data_labels="F_XDSdataset"'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = p.communicate()
     file=open(output,'w')
@@ -1849,7 +1849,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d1=open(out+'_1sfall.ins', 'r')
     #create map1
     #running sfall
-    sfall = subprocess.Popen([ 'sfall','HKLIN',mtz,'HKLOUT',out+'_1sfall.mtz','XYZIN',pdb], stdin=d1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sfall = subprocess.Popen([ 'sfall','HKLIN',mtz,'HKLOUT',out+'_1sfall.mtz','XYZIN',pdb], stdin=d1, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = sfall.communicate()
 ##    print 'sfall1'
 ##    print ou
@@ -1862,7 +1862,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d2.write('labin  F1=F_XDSdataset SIG1=SIGF_XDSdataset PHI=PHICalc\nEND')
     d2.close()
     d2=open(out+'_2fft.ins','r')
-    fft = subprocess.Popen([ 'fft','HKLIN',out+'_1sfall.mtz','MAPOUT',out+'_2fft.map'], stdin=d2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    fft = subprocess.Popen([ 'fft','HKLIN',out+'_1sfall.mtz','MAPOUT',out+'_2fft.map'], stdin=d2, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = fft.communicate()
     d2.close()
     rmf.append(out+'_2fft.map')
@@ -1875,7 +1875,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d3.write('XYZLIM ASU')
     d3.close()
     d3=open(out+'_3mapmask.ins','r')
-    mapmask = subprocess.Popen([ 'mapmask','MAPIN',out+'_2fft.map','MAPOUT',out+'_3mapmask.map'], stdin=d3, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    mapmask = subprocess.Popen([ 'mapmask','MAPIN',out+'_2fft.map','MAPOUT',out+'_3mapmask.map'], stdin=d3, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = mapmask.communicate()
     d3.close()
     rmf.append(out+'_3mapmask.map')
@@ -1894,7 +1894,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d4.write('end')
     d4.close()
     d4=open(out+'_4sfall.ins', 'r')
-    sfall2 = subprocess.Popen([ 'sfall','MAPOUT',out+'_4model_sfall.map','XYZIN',pdb], stdin=d4, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sfall2 = subprocess.Popen([ 'sfall','MAPOUT',out+'_4model_sfall.map','XYZIN',pdb], stdin=d4, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = sfall2.communicate()
     d4.close()
     rmf.append(out+'_4model_sfall.map')
@@ -1908,7 +1908,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d5.write('AXIS Y X Z')
     d5.close()
     d5=open(out+'_5mapmask.ins','r')
-    mapmask2 = subprocess.Popen([ 'mapmask','MAPIN',out+'_4model_sfall.map','MAPOUT',out+'_5mapmask.map'], stdin=d5, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    mapmask2 = subprocess.Popen([ 'mapmask','MAPIN',out+'_4model_sfall.map','MAPOUT',out+'_5mapmask.map'], stdin=d5, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = mapmask2.communicate()
     d5.close()
     rmf.append(out+'_5mapmask.map')
@@ -1927,7 +1927,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d6.write('end')
     d6.close()
     d6=open(out+'_6sfall.ins', 'r')
-    sfall3 = subprocess.Popen([ 'sfall','MAPOUT',out+'_6model_sfall.map','XYZIN',pdb], stdin=d6, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sfall3 = subprocess.Popen([ 'sfall','MAPOUT',out+'_6model_sfall.map','XYZIN',pdb], stdin=d6, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = sfall3.communicate()
     d6.close()
     rmf.append(out+'_6model_sfall.map')
@@ -1941,7 +1941,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d7.write('AXIS Y X Z')
     d7.close()
     d7=open(out+'_7mapmask.ins','r')
-    mapmask3 = subprocess.Popen([ 'mapmask','MAPIN',out+'_6model_sfall.map','MAPOUT',out+'_7mapmask.map'], stdin=d7, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    mapmask3 = subprocess.Popen([ 'mapmask','MAPIN',out+'_6model_sfall.map','MAPOUT',out+'_7mapmask.map'], stdin=d7, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = mapmask3.communicate()
     d7.close()
     rmf.append(out+'_7mapmask.map')
@@ -1954,7 +1954,7 @@ def sfall_overlapmap ( pdb , mtz , out ): #script created
     d8.write('correlate residue\nchain A 1 121\nEND')
     d8.close()
     d8=open(out+'_8overlapmap.ins','r')
-    overlapmap = subprocess.Popen([ 'overlapmap','MAPIN1',out+'_3mapmask.map','MAPIN2',out+'_5mapmask.map','MAPIN3',out+'_7mapmask.map'], stdin=d8, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    overlapmap = subprocess.Popen([ 'overlapmap','MAPIN1',out+'_3mapmask.map','MAPIN2',out+'_5mapmask.map','MAPIN3',out+'_7mapmask.map'], stdin=d8, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     ou, err = overlapmap.communicate()
 ##    print 'overlapmap'
 ##    print ou
@@ -2139,7 +2139,7 @@ def refine_buster_multiprocesses ( pdb_input , mtz_input , pdb_output , buster_p
 ##    os.system('mkdir '+folder)
     #buster_options='-noWAT -nbig 10 -RB -nthread 1 UsePdbchk="no"'
      #-w 50 AdjustXrayWeightAutomatically="no" -autoncs 
-    p = subprocess.Popen([buster_path,'-p',xyzin,'-m',mtz_input,'-d',folder]+buster_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen([buster_path,'-p',xyzin,'-m',mtz_input,'-d',folder]+buster_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
     out, err = p.communicate()
     if 'log' in list_keep:
         file=open(folder+'.log','w')
@@ -3003,7 +3003,7 @@ def superimpose_dif_seq_chain_rot_angle (pdb_input1_fixed,residue1_1,residue1_2,
     superimpose_instructions.write("end\n")
     superimpose_instructions.close()
     superimpose_instructions=open("superimpose_instructions.log","r")
-    superimpose_job = subprocess.Popen([ 'lsqkab','XYZIN1',pdb_input1_fixed,'XYZIN2',pdb_input2_moving,], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)#'XYZOUT',pdb_output], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        
+    superimpose_job = subprocess.Popen([ 'lsqkab','XYZIN1',pdb_input1_fixed,'XYZIN2',pdb_input2_moving,], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)#'XYZOUT',pdb_output], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = superimpose_job.communicate()
     #print out
     try:
@@ -3056,19 +3056,19 @@ def superimpose_lsqkab_dif_seq_chain_pdb_atomtype_output (pdb_input1_moving,chai
     superimpose_instructions.close()
     superimpose_instructions=open("superimpose_instructions.log","r")
     if xyz and deltas:
-        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb','DELTAS',output_name+'.dat'], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
+        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb','DELTAS',output_name+'.dat' , text=True], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
 ##        if not os.path.isfile( output_name+'.pdb' ) and not os.path.isfile( output_name+'.dat' ):
 ##            print 'error in function RJB_lib.superimpose_dif_seq_chain_output_pdb'
 ##            print 'PDB moving:',pdb_input1_moving,'\nPDB reference:',pdb_input2_reference,'\nPDB output:',output_name+'.pdb','\nDELTAS:',output_name+'.dat'
 ##            exit()
     elif xyz:
-        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb'], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        # XYZINM as in match XYZINF as in fit
+        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb'], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)        # XYZINM as in match XYZINF as in fit
 ##        if not os.path.isfile( output_name+'.pdb' ) :
 ##            print 'error in function RJB_lib.superimpose_dif_seq_chain_output_pdb'
 ##            print 'PDB moving:',pdb_input1_moving,'\nPDB reference:',pdb_input2_reference,'\nPDB output:',output_name+'.pdb'
 ##            exit()
     elif deltas:
-        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'DELTAS',output_name+'.dat'], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
+        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'DELTAS',output_name+'.dat'], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
 ##        if not os.path.isfile( output_name+'.dat' ):
 ##            print 'error in function RJB_lib.superimpose_dif_seq_chain_output_pdb'
 ##            print 'PDB moving:',pdb_input1_moving,'\nPDB reference:',pdb_input2_reference,'\nDELTAS:',output_name+'.dat'
@@ -5746,7 +5746,7 @@ def submit_job_sh ( list_files_input , sh_file , output_directory , distribute_c
 #def submit_job_sh ( list_files_input , list_files_output , sh_file , distribute_computing, cm ):
     if distribute_computing=='multiprocessing':
         #os.system('nohup /bin/tcsh '+sh_file+' &')
-        p = subprocess.Popen(['nohup','/bin/bash',sh_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(['nohup','/bin/bash',sh_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)
         out, err = p.communicate()
     else:
         job = Grid.gridJob('nameJob')
@@ -5787,7 +5787,7 @@ def submit_job_sh_argums_execute ( list_files_input , executable , argums , outp
         #p = subprocess.Popen([shelxe_path,dictionary_shelxe['file']]+shelxe_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,cwd=dictionary_shelxe['folder']) extracted from shelxe_ByDir.py
         #print executable , file_name , argums
         #p = subprocess.Popen([executable,file_name ]+argums, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=output_directory )
-        p = subprocess.Popen([executable]+argums, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=output_directory )
+        p = subprocess.Popen([executable]+argums, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=output_directory  , text=True)
         out, err = p.communicate()
     else:
         job = Grid.gridJob('nameJob')
@@ -5913,7 +5913,7 @@ def shelxe_multiprocesses ( input , shelxe_path , shelxe_options ):
     print ('Shelxe expanding',input,'with options',shelxe_options)
     folder=input[:input.rindex('/')]
     input=input[input.rindex('/')+1:]
-    p = subprocess.Popen([shelxe_path,input]+shelxe_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,cwd=folder)
+    p = subprocess.Popen([shelxe_path,input]+shelxe_options.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,cwd=folder , text=True)
     out, err = p.communicate()
     
 def return_iCC_wMPE ( lst_file ):
@@ -6542,7 +6542,7 @@ def runAREAIMOLccp4 (pdbfile,outpdb,instr_file='areaimol-instructions.ins',areai
     instr=open(instr_file)
     AreaimolLog = open(outpdb[:-3]+'log', 'w')
     p = subprocess.Popen(
-        [areaimolpath, 'XYZIN', pdbfile, 'XYZOUT', outpdb],stdin=instr, stdout=AreaimolLog, stderr=subprocess.PIPE)
+        [areaimolpath, 'XYZIN', pdbfile, 'XYZOUT', outpdb],stdin=instr, stdout=AreaimolLog, stderr=subprocess.PIPE , text=True)
     out, err = p.communicate()
     instr.close()
     AreaimolLog.close()
@@ -6835,7 +6835,7 @@ def runPhenixCutMapGivenAroundCoord (pdb,mtz,outpdb,outmtz,selection=False,Pheni
     else: sel=''
     #print '\n\n\n'+PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 > "'+outmtz[:-3]+'log"'
     output_cc=open(outmtz[:-3] + 'log','w')
-    p = subprocess.Popen (PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 ' , shell=True , stdin=subprocess.PIPE,stdout=output_cc,stderr=output_cc)
+    p = subprocess.Popen (PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 ' , shell=True , stdin=subprocess.PIPE,stdout=output_cc,stderr=output_cc , text=True)
     outp,errorp=p.communicate()
     output_cc.close()
     #os.system(PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 > "'+outmtz[:-3]+'log"')
@@ -6851,7 +6851,7 @@ def runPhenixSuperposeMapsFromModels (pdb1_var,pdb2_fixed,mtz1_var,mtz2_fixed,ou
     else: sel=''
     #print '\n\n\n'+PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 > "'+outmtz[:-3]+'log"'
     output_cc=open(outmtz[:-3] + 'log','w')
-    p = subprocess.Popen (PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 ' , shell=True , stdin=subprocess.PIPE,stdout=output_cc,stderr=output_cc)
+    p = subprocess.Popen (PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 ' , shell=True , stdin=subprocess.PIPE,stdout=output_cc,stderr=output_cc , text=True)
     outp,errorp=p.communicate()
     output_cc.close()
     #os.system(PhenixCutMap_path+' pdb_in="'+pdb+'" mtz_in="'+mtz+'" mtz_out="'+outmtz+'" pdb_out="'+outpdb+'" temp_dir="'+outmtz[:-4]+'_temp1" output_dir="'+outmtz[:-4]+'_output" params_out="'+outmtz[:-3]+'eff" '+sel+' padding=0.5 cutout_type=model cutout_sphere_radius=10 cutout_model_radius=0.5 > "'+outmtz[:-3]+'log"')
@@ -7223,7 +7223,7 @@ def CalculateRSCCfromMAP (inputmtz,inputpdb,outputt,programm='phenix.get_cc_mtz_
     l=programm+' raise_sorry=True debug=True fix_xyz=True '+inputmtz+' '+inputpdb+' temp_dir='+outputt
     ll=l.split()
     #os.system(programm+' raise_sorry=True debug=True fix_xyz=True '+inputmtz+' '+inputpdb+' temp_dir='+output + ' > '+output+'_run.log')
-    p = subprocess.Popen(ll, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE)#, cwd=folder)
+    p = subprocess.Popen(ll, stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)#, cwd=folder)
     out, err = p.communicate()
     with open(outputt+'_run.log','w') as fw: fw.write(out)
     os.system('cp '+outputt+'/cc.log '+outputt+'_RSCC.log')

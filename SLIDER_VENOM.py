@@ -353,6 +353,8 @@ else:
 
     # '\nIt was found',nproc,'processors (counting HyperThreading if available).'
     # '600 Mb will be left free as tolerance and to be free for other programs.'
+    if cootfmem<1.0: cootfmem=1.0
+    if polderfmem < 1.0: polderfmem = 1.0
     NewNProcCoot=   int ( (ifmem-600)/cootfmem   )
     NewNProcPolder= int ( (ifmem-600)/polderfmem )
     print ('There is',ifmem-600,'available RAM memory')
