@@ -1495,8 +1495,8 @@ def coot_py_script_rotamer_sphere_refine ( pdb , dic , outputCootPy , output_pdb
     ou=open(outputCootPy,'w')
     ou.write( 'turn_off_backup(0) \n')
     dic_pdb=return_dic_chain_resnumb_restype (pdb)
-    for ch,item in dic.iteritems():
-        for resn,mut in item.iteritems():
+    for ch,item in dic.items():
+        for resn,mut in item.items():
             if mut!=False:
                 if len(mut)==1:
                     mut=amino_acid_list_3L[amino_acid_list.index(mut)]
@@ -1577,8 +1577,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
         dic_pdb=return_dic_chain_resnumb_restype (pdb)
     dic_new_res={}
     dic_impres=return_impartial_res (pdb)
-    for ch,dresnrest in dic.iteritems():
-        for i,lmut in dresnrest.iteritems():
+    for ch,dresnrest in dic.items():
+        for i,lmut in dresnrest.items():
             if printtt: print ('SEQ',i,'in chain',ch,'in PDB was originnaly',dic_pdb[ch][i])
             try:
                 if dic[ch][i]!=dic_pdb[ch][i] or dic_impres[ch][i]==dic[ch][i]:
@@ -1591,8 +1591,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
     #print 'dic is',dic
     #print 'dic_new_res',dic_new_res
     if len(dic_new_res)>0:
-        for ch,dii in dic_new_res.iteritems():
-            for i,rest in dii.iteritems():
+        for ch,dii in dic_new_res.items():
+            for i,rest in dii.items():
                 if printtt: print ('New assigned residue in chain',ch,'by coot is:',rest)
         if not os.path.isfile(outpdb):
             coot_run_rotamer_sphere_refinement_multi( input_PDB_file=pdb , input_mtz_file=mtz_phases , output_pdb=outpdb , outputCootPy=outpdb[:-3]+'py' , dic=dic_new_res , radius_sph_ref=radius_sph_ref , removeWAT=removeWAT , coot_path=coot_path )
@@ -1609,8 +1609,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
 ##    dic_pdb=return_dic_chain_resnumb_restype (pdb)
 ##    dic_new_res={}
 ##    dic_impres=return_impartial_res (pdb)
-##    for ch,dresnrest in dic.iteritems():
-##        for i,lmut in dresnrest.iteritems():
+##    for ch,dresnrest in dic.items():
+##        for i,lmut in dresnrest.items():
 ##            print 'SEQ',i,'in PDB is',dic_pdb[ch][i]
 ##            try:
 ##                if dic[ch][i]!=dic_pdb[ch][i] or dic_impres[ch][i]==dic[ch][i]:
@@ -1623,8 +1623,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
 ##    #print 'dic is',dic
 ##    #print 'dic_new_res',dic_new_res
 ##    if len(dic_new_res)>0:
-##        for ch,dii in dic_new_res.iteritems():
-##            for i,rest in dii.iteritems():
+##        for ch,dii in dic_new_res.items():
+##            for i,rest in dii.items():
 ##                print 'Assigned residue is:',rest
 ##        if not os.path.isfile(outpdb):
 ##            coot_run_rotamer_sphere_refinement_multi( input_PDB_file=pdb , input_mtz_file=mtz_phases , output_pdb=output+'.pdb' , outputCootPy=output+'.py' , dic=dic_new_res , radius_sph_ref=radius_sph_ref , coot_path=coot_path )
@@ -1646,8 +1646,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
 ##    dic_pdb=return_dic_chain_resnumb_restype (pdb)
 ##    dic_new_res={}
 ##    dic_impres=return_impartial_res (pdb)
-##    for ch,dresnrest in dic.iteritems():
-##        for i,lmut in dresnrest.iteritems():
+##    for ch,dresnrest in dic.items():
+##        for i,lmut in dresnrest.items():
 ##            print 'SEQ',i,'in PDB is',dic_pdb[ch][i]
 ##            try:
 ##                if dic[ch][i]!=dic_pdb[ch][i] or dic_impres[ch][i]==dic[ch][i]:
@@ -1660,8 +1660,8 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
 ##    #print 'dic is',dic
 ##    #print 'dic_new_res',dic_new_res
 ##    if len(dic_new_res)>0:
-##        for ch,dii in dic_new_res.iteritems():
-##            for i,rest in dii.iteritems():
+##        for ch,dii in dic_new_res.items():
+##            for i,rest in dii.items():
 ##                print 'Assigned residue is:',rest
 ##        if not os.path.isfile(output+'.pdb'):
 ##            coot_run_rotamer_sphere_refinement_multi( input_PDB_file=pdb , input_mtz_file=mtz_phases , output_pdb=output+'.pdb' , outputCootPy=output+'.py' , dic=dic_new_res , radius_sph_ref=radius_sph_ref , coot_path=coot_path )
@@ -1703,7 +1703,7 @@ def remove_Bfactor_occ_res_pdb (pdb_input,pdb_output,dic_ch_resn,AtomsExclude=['
             altconf=l[16]
             resn=int(l[22:26])
             atomt=l[13:15]
-            for ch2,ddic in dic_ch_resn.iteritems():
+            for ch2,ddic in dic_ch_resn.items():
                 for resn2 in ddic:
                     if resn2==resn and ch==ch2 and atomt not in AtomsExclude and atomt in AtomsInclude:
                         bfChange=True
@@ -1767,9 +1767,9 @@ def run_phenix_polder_multiproc ( pdb , mtz , dic , output , polder_path=False ,
         polder_path='phenix.polder'
     #l='phenix.polder '+pdb+' '+mtz+' selection="chain '+ch+' resid '+str(resn)+'"'
     selection='selection="chain '
-    for ch,item in dic.iteritems():
+    for ch,item in dic.items():
         for ch1L in ch:
-            for resn,mut in item.iteritems():
+            for resn,mut in item.items():
                 if selection=='selection="chain ':
                     selection+=ch1L+' and resid '+str(resn)
                 else:
@@ -4673,7 +4673,7 @@ def organized_possibilities_list_restrict_by_given_numbers ( dic_possib , models
             pass
         short_dic_possib[chain]=chain_list[:cut]
     print ('\n\nConsidering the scoring function and the chosen number of models to be pushed through refinement, the following was generated by chain:')
-    for chain,lista in short_dic_possib.iteritems():
+    for chain,lista in short_dic_possib.items():
         print ('chain',chain)
         print ('number of assigned residues',max ([ len( filter(lambda y: y in string.uppercase , x[0]) ) for x in lista]))
         print ('number of possible trials:',len(lista),'\n')
@@ -4765,7 +4765,7 @@ def generate_sequences_from_seqcombination_chosenchains ( dic_possib , pdb_file 
     
     return seq_list
 
-##    for chain_eval,list_eval in  dic_possib.iteritems():
+##    for chain_eval,list_eval in  dic_possib.items():
 ##        for tuple_eval in list_eval:
 ##            seq_eval=tuple_eval[0]
 ##            seq=''
@@ -5210,7 +5210,7 @@ def GivenListListMatchCA2PDBsReturnDicChResNResT(list_CA_trace_related_ent):
 
 def GivenDicChResNResTReturnDicChResNRangeSeq(DicChResNResT,DicChResNResSS=False):
     DicChResNRangeSeq={}
-    for ch,DicResNResT in DicChResNResT.iteritems():
+    for ch,DicResNResT in DicChResNResT.items():
         DicChResNRangeSeq[ch]={}
         prevRN = sorted(DicResNResT)[0]
         resni  = str(prevRN) + '-'
@@ -5533,7 +5533,7 @@ def given_list_dic_files_generate_dic_FOM_by_chains ( list_dics_files , inicial_
                 dic_FOM[ch]['CCssc']=[]
             dic_FOM[ch]['CCsmc'].append(dic[inicial_key+'_CCmc'])
             dic_FOM[ch]['CCssc'].append(dic[inicial_key+'_CCsc'])
-    for chain,dic in dic_FOM.iteritems():
+    for chain,dic in dic_FOM.items():
         dic_FOM[chain]['maxR']=max(dic['Rs'])
         dic_FOM[chain]['maxRf']=max(dic['Rsfree'])
         dic_FOM[chain]['minCC']=min(dic['CCs_ampl'])
@@ -5562,7 +5562,7 @@ def given_list_dic_files_generate_dic_myFOM_by_chains ( list_dics_files , inicia
             dic_FOM[ch]['Rsfree'].append(dic[inicial_key+'_Rfree'])
             dic_FOM[ch]['CCsmc'].append(dic[inicial_key+'_CCmc_chain_mean'])
             dic_FOM[ch]['CCssc'].append(dic[inicial_key+'_CCsc_chain_mean'])
-    for chain,dic in dic_FOM.iteritems():
+    for chain,dic in dic_FOM.items():
         dic_FOM[chain]['maxR']=max(dic['Rs'])
         dic_FOM[chain]['maxRf']=max(dic['Rsfree'])
         dic_FOM[chain]['minCCmc']=min(dic['CCsmc'])
@@ -5955,7 +5955,7 @@ def read_PDB_return_number_molec_averaged_Bfactor_occup  ( input_file ):
             d[rest]['occ'].append(occ)
             d[rest]['wbf'].append(wbf)
     li=[]
-    for key,val in d.iteritems():
+    for key,val in d.items():
         #li= ( restype , listchain , listresnumb , avocc , wocc )
         li.append( ( key , val['ch'] , val['resn'] , numpy.mean( val['occ'] ) , (sum(val['wbf']))/(sum(val['occ'])) ) )
     return li
@@ -6881,7 +6881,7 @@ def extract_edges_coordinates_pdb_write_pdb (pdb,atoms_accept,dist_cut,pdbout):
                     dicall[chain_ID][2].append(z)
 
     dic_lines_bychain_extremities = {}
-    for ch,listall in dicall.iteritems():
+    for ch,listall in dicall.items():
         lx=[min(listall[0])-dist_cut,max(listall[0])+dist_cut]
         ly=[min(listall[1])-dist_cut,max(listall[1])+dist_cut]
         lz=[min(listall[2])-dist_cut,max(listall[2])+dist_cut]
@@ -7011,7 +7011,7 @@ def readPIRalignment (alignfile):
 #written in 11May2018 to convert dic['A']=[1,2,3,4] to folder string seq_A1-4 for SLIDER1.9.py
 def convertDicChResNStr ( DicChResNStr ):
     strr = 'seq'
-    for k, v in DicChResNStr.iteritems():
+    for k, v in DicChResNStr.items():
         strr += '_' + k
         for n in v:
             if not n - 1 in v:
@@ -7197,7 +7197,7 @@ def GivenSeqListChResNCASeqReturnStringRef(seqSeqPushRef , listChResNCA , Sequen
 
     strvar=''
     for Ch in DicChResNRangeSeqVar:
-        for ResNRange , seqvar in DicChResNRangeSeqVar[Ch].iteritems():
+        for ResNRange , seqvar in DicChResNRangeSeqVar[Ch].items():
             bestindexalignment=BestAlignment2StringsReturnIndex( Sequence , seqvar )
             if strvar!='': strvar += '&'
             strvar += str(bestindexalignment) + '-' + str(bestindexalignment + len(seqvar) - 1)
