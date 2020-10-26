@@ -3056,7 +3056,7 @@ def superimpose_lsqkab_dif_seq_chain_pdb_atomtype_output (pdb_input1_moving,chai
     superimpose_instructions.close()
     superimpose_instructions=open("superimpose_instructions.log","r")
     if xyz and deltas:
-        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb','DELTAS',output_name+'.dat' , text=True], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
+        superimpose_job = subprocess.Popen([ 'lsqkab','XYZINM',pdb_input1_moving,'XYZINF',pdb_input2_reference,'XYZOUT',output_name+'.pdb','DELTAS',output_name+'.dat' ], stdin=superimpose_instructions, stdout=subprocess.PIPE, stderr=subprocess.PIPE , text=True)        # XYZINM as in match XYZINF as in fit, DELTAS (A list of ALL differences between atom pairs is written to a file assigned extracted from http://www.ccp4.ac.uk/html/lsqkab.html#output)
 ##        if not os.path.isfile( output_name+'.pdb' ) and not os.path.isfile( output_name+'.dat' ):
 ##            print 'error in function RJB_lib.superimpose_dif_seq_chain_output_pdb'
 ##            print 'PDB moving:',pdb_input1_moving,'\nPDB reference:',pdb_input2_reference,'\nPDB output:',output_name+'.pdb','\nDELTAS:',output_name+'.dat'
