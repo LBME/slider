@@ -542,7 +542,10 @@ for ch, dires in dic_pos_aa.items():
         for a in lmut:
             aa=amino_acid_list_3L[amino_acid_list.index(a)]
             outlog=outfold+stresn+a+'.log'
-            di=RJB_lib.extract_CC_R_Rfree_from_polder_log (outlog)
+            try: di=RJB_lib.extract_CC_R_Rfree_from_polder_log (outlog)
+            except:
+                print ('Failure extracting CC, R, Rfree of file:',outlog)
+                exit()
             if di!=False:
                 lisel.append( (a,di['cc13'],di) )
                 if dic_pdb[ch[0]][resn]==a: dicallSC[ch][resn].append( [a+'!',di['cc13']] )
