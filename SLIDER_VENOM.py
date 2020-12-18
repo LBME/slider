@@ -846,8 +846,8 @@ for ch in dicallSC:
     for resn in dicallSC[ch]:
         #print dicallSC[ch][resn]
         lvar=sorted(dicallSC[ch][resn], key=(lambda item: item[1]), reverse=True)
-        #print (resn,lvar)
-        if '!' in lvar[0][0] and len(lvar)>1 and lvar[0][1]-lvar[1][1]>0.03:
+        #print (ch,resn,lvar)
+        if len(lvar)>1 and '!' in lvar[0][0] and lvar[0][1]-lvar[1][1]>0.03:
             cc13='%.1f'%(lvar[0][1]*100)
             ccdiff= '%.1f'%((lvar[0][1]-lvar[1][1])*100)
             outResolved.write('\n'+ch+'\t'+str(resn)+'\t'+lvar[0][0]+'\t'+cc13 + '\t' + ccdiff + '\t' + dicmainchain[ch][resn])
