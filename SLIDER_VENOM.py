@@ -391,6 +391,7 @@ for ch,dires in dic_pos_aa.items():
         RJB_lib.mkdir(outfold)
         if (not os.path.isfile(outfold+ch+'_'+stresn+'_polder.log') ):
             ####RUNNING COOT MODELING
+            #print (lmut)
             for a in lmut:
                 #print a
                 aa=amino_acid_list_3L[amino_acid_list.index(a)]
@@ -528,6 +529,7 @@ while 1:
 dicallSC={}
 
 ###SUMMARY RESULTS PHENIX.POLDER BY CHAIN AND BY RESIDUE NUMBER
+quitt = False
 for ch, dires in dic_pos_aa.items():
     dicallSC[ch]={}
     # print ch
@@ -545,7 +547,9 @@ for ch, dires in dic_pos_aa.items():
             try: di=RJB_lib.extract_CC_R_Rfree_from_polder_log (outlog)
             except:
                 print ('Failure extracting CC, R, Rfree of file:',outlog)
-                exit()
+                di = False
+                quitt = True
+                #exit()
             if di!=False:
                 lisel.append( (a,di['cc13'],di) )
                 if dic_pdb[ch[0]][resn]==a: dicallSC[ch][resn].append( [a+'!',di['cc13']] )
@@ -577,11 +581,17 @@ for ch, dires in dic_pos_aa.items():
         n += 1
         stresn = str(resn)
         outfmc = output_folder + '/mainchain/' + ch + stresn + '_polder.log'
-        di = RJB_lib.extract_CC_R_Rfree_from_polder_log(outfmc)
+        try:
+            di = RJB_lib.extract_CC_R_Rfree_from_polder_log(outfmc)
+        except:
+            print('Failure extracting CC, R, Rfree of file:', outlog)
+            di = False
+            quitt=True
         if di==False: di={'cc13':'Null'}
         else:         di['cc13'] = '%.1f' % (di['cc13']*100)
         dicmainchain[ch][resn] = di['cc13']
 
+if quitt: exit()
 
 ####writting overall table
 
