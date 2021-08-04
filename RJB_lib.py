@@ -59,7 +59,13 @@ from Bio.SubsMat import MatrixInfo as MatList
 amino_acid_list=           ['A',  'C',  'D',  'E',  'F',  'G',  'H',  'I',  'K',  'L',  'M',  'N',  'P',  'Q',  'R',  'S',  'T',  'V',  'W',  'Y',  'M'  ]
 amino_acid_list_3L=        ['ALA','CYS','ASP','GLU','PHE','GLY','HIS','ILE','LYS','LEU','MET','ASN','PRO','GLN','ARG','SER','THR','VAL','TRP','TYR','MSE']
 amino_acid_list_numb_atoms=[   5,    6,    8  ,  9  , 11  ,  4  , 10  ,  8  ,  9  ,  8  ,  8  ,  8  ,  7  ,  9  , 11  ,  6  ,  7  ,  7 ,  14 ,  12 , 8   ]
-
+DicHydrophobic={'ARG':('CB','CG'),'LYS':('CB','CG','CD'),'HIS':('CB'),'ASP':('CB'),'GLU':('CB','CG'),'PRO':('CB','CG'),
+                'MET':('CB','CG','CE'),'ALA':('CB'),'VAL':('CB','CG1','CG2'),'LEU':('CB','CG','CD1','CD2'),
+                'ILE':('CB','CG1','CG2','CD1'),'TYR':('CB','CG','CD1','CD2','CE1','CE2'),
+                'PHE':('CB','CG','CD1','CD2','CE1','CE2','CZ'),'TRP':('CG','CD2','CE3','CZ3','CH2','CZ2'),'CIS':('CB'),
+                'GLN':('CB','CG'),'ASN':('CB'),'THR':('CG2'),'GLY':(),'SER':()}
+#alphabet=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqstuvwxyz'
 
 
 def generate_HLC_from_FOM ( mtz_input , mtz_output ):
@@ -1485,12 +1491,13 @@ def coot_ROTAMER_automatic_refinement ( input_PDB_file , input_map_file , output
 #(write-pdb-file 0 "output_file")	save macromolecule '0' in file-name output-file ("" necessary)
 #(coot-real-exit 0)			        quit
 
-def coot_py_script_rotamer_sphere_refine ( pdb , dic , outputCootPy , output_pdb  , radius_sph_ref=5 , removeWAT=False ): #Script created Dec5,2016. Dic should be: dic[chain][resnumb]=False if no mutation is desired or dic[chain][resnumb]='aminoacid_1L' if mutation is desired
+def coot_py_script_rotamer_sphere_refine ( pdb , dic , outputCootPy , output_pdb  , radius_sph_ref=5 , removeWAT=False , radius_sph_removeWat=2.5): #Script created Dec5,2016. Dic should be: dic[chain][resnumb]=False if no mutation is desired or dic[chain][resnumb]='aminoacid_1L' if mutation is desired
     if not outputCootPy.endswith('.py'):
         print ('wrong variable outputCootPy',outputCootPy,'given in function RJB_lib.coot_py_script_sphere_refine')
         exit()
     if removeWAT:
-        line_remWAT="for resi in other_residues:\n    chain=resi[0]\n    resnumb=resi[1]\n    resi_name=resname_from_serial_number (0,chain,resnumb)\n    if resi_name=='WAT' or resi_name=='HOH': delete_atom (0 , chain, resnumb , '' , resi_name , '' ) \nother_residues = residues_near_residue(0, centred_residue, "+str(radius_sph_ref)+")\n"
+        line_remWAT = "other_residues = residues_near_residue(0, centred_residue, " + str(radius_sph_removeWat) + ")\n"
+        line_remWAT+="for resi in other_residues:\n    chain=resi[0]\n    resnumb=resi[1]\n    resi_name=resname_from_serial_number (0,chain,resnumb)\n    if resi_name=='WAT' or resi_name=='HOH': delete_atom (0 , chain, resnumb , '' , resi_name , '' ) \n"
     else: line_remWAT=''
     ou=open(outputCootPy,'w')
     ou.write( 'turn_off_backup(0) \n')
@@ -1509,8 +1516,8 @@ def coot_py_script_rotamer_sphere_refine ( pdb , dic , outputCootPy , output_pdb
                 ou.write( 'auto_fit_best_rotamer ( '+str(resn)+', "", "", "'+ch+'", 0 , 1 , 1 , 0.10)\n')
                 if float(radius_sph_ref)<50.0:
                     ou.write( 'centred_residue=["'+ch+'",'+str(resn)+',""]\n')
-                    ou.write( 'other_residues = residues_near_residue(0, centred_residue, '+str(radius_sph_ref)+')\n')
                     ou.write( line_remWAT )
+                    ou.write( 'other_residues = residues_near_residue(0, centred_residue, '+str(radius_sph_ref)+')\n')
                     ou.write( 'all_residuess = [centred_residue]\n')
                     ou.write( 'if (type(other_residues) is ListType):\n')
                     ou.write( '    all_residuess += other_residues\n')
@@ -1823,14 +1830,15 @@ def extract_CC_R_Rfree_from_polder_log (log,printtt=False): #Script created Dec5
     rfreeimpr=(rfreeexcl-rfreemodel)*100
     rsimpr=rimpr+rfreeimpr
     d={'cc13':cc13,'rmodel':rmodel,'rfreemodel':rfreemodel,'rexcl':rexcl,'rfreeexcl':rfreeexcl,'rimpr':rimpr,'rfreeimpr':rfreeimpr,'rsimpr':rsimpr}
-    if cc13>cc12 and cc13>cc23:
-        return d
-    else:
-        stcc12='%.2f'%(cc12)
-        stcc13='%.2f'%(cc13)
-        stcc23='%.2f'%(cc23)
-        if printtt: print ('phenix.polder map ('+log+') should not be used, since the density in the OMIT region resembles to bulk solvent density, as seen by CC(1,2){'+stcc12+'} and CC(2,3){'+stcc23+'} are larger or comparable to CC(1,3){'+stcc13+'}.')
-        return False
+    return d
+    # if cc13>cc12 and cc13>cc23:
+    #     return d
+    # else:
+    #     stcc12='%.2f'%(cc12)
+    #     stcc13='%.2f'%(cc13)
+    #     stcc23='%.2f'%(cc23)
+    #     if printtt: print ('phenix.polder map ('+log+') should not be used, since the density in the OMIT region resembles to bulk solvent density, as seen by CC(1,2){'+stcc12+'} and CC(2,3){'+stcc23+'} are larger or comparable to CC(1,3){'+stcc13+'}.')
+    #     return False
 
 
 def sfall_overlapmap ( pdb , mtz , out ): #script created
@@ -2353,7 +2361,6 @@ def remove_empty_keys_in_dictionary (dictio):
 
 
 def separate_discontinuous_residues_in_chains (pdb_input,pdb_output):
-    alphabet=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     file=open(pdb_input,'r')
     file_list=file.readlines()
     file.close()
@@ -7257,5 +7264,193 @@ def readshelxeline(lstfile):
     return ShelxeLine
 
 
+# Functions created 14 May 2021
+
+#
+def GenerateSym (pdbin,pdbout,dist=5.5,pymolpath='pymol',pymolins=''): #both should be strings
+    pdb=pdbin[pdbin.rindex('/')+1:-4]
+    #print(pdbin, pdbout, pymolins)
+    if pymolins=='': pymolins=pdbout[:-3] + 'pml'
+    with open(pymolins, 'w') as fw:
+        fw.write('load '+pdbin+'\n')
+        fw.write('symexp sym,'+pdb+',('+pdb+'),'+str(dist)+'\n')
+        fw.write('select all\n')
+        fw.write('save '+pdbout+', sele\n')
+        fw.write('quit')
+    os.system(pymolpath+' -c '+pymolins+' > /dev/null') #'+pymolins[:-4]+'_pymol.log')
+
+def ChangeChSym(pdbin,pdbout):
+    with open(pdbin) as f: fl=f.readlines()
+    CheckStr=[]
+    with open(pdbout,'w') as fw:
+        for l in fl:
+            if l.startswith('ATOM') or l.startswith('HETATM'):
+                lin=l[11:26]
+                if lin in CheckStr:
+                    for aa in alphabet:
+                        lin=lin[:10]+aa+lin[11:]
+                        if lin not in CheckStr: break
+                CheckStr.append(lin)
+                l=l[:11]+lin+l[26:]
+                fw.write(l)
 
 
+def RemoveCheckResAboveDist(pdbin,chf,resnf,pdboutshort,pdboutlarge,distout,clashout,distint=4.0,distclash=2.5):
+    #dist=20.5): # trash 20.5 because it is the maximum distance of a Ca to Nh in Arg (7.5) * 2 + 5.5 (maximum considered interaction)
+    resnf=int(resnf)
+    with open(pdbin) as f: fl=f.readlines()
+    fw=open(distout,'w')
+    fwclash=open(clashout,'w')
+    fw2 = open(pdboutshort, 'w')
+    fw.write     ('Ch1\tResN1\tResT1\tAtType1\tCh2\tResN2\tResT2\tAtType2\tDist\n')
+    fwclash.write('Ch1\tResN1\tResT1\tAtType1\tCh2\tResN2\tResT2\tAtType2\tDist\n')
+    dicChKeep=defaultdict(list)
+    DicRes={}
+    for l in fl:
+        if l.startswith('ATOM') and l[21]==chf and int(l[22:26])==resnf and l[12:16] not in (' N  ',' C  ',' O  '):#' CA ',
+            atomt1=l[12:16]
+            rest1=l[17:20]
+            pos1=(float(l[30:38]),float(l[38:46]),float(l[46:54]))
+            DicRes[atomt1]=pos1
+            fw2.write(l)
+    for l in fl:
+        if l.startswith('ATOM') and (l[21]!=chf or int(l[22:26])!=resnf) or l.startswith('HETATM'):
+            atomt2 = l[12:16]
+            rest2 = l[17:20]
+            ch2=l[21]
+            resn2=int(l[22:26])
+            pos2=(float(l[30:38]),float(l[38:46]),float(l[46:54]))
+            write2=True
+            for at1,pos1 in DicRes.items():
+                distvar=CalculateEuclidianDistance(pos1,pos2)
+                if distvar<=distint:
+                    sdistvar='%.3f'%(distvar)
+                    if resn2 not in dicChKeep[ch2]: dicChKeep[ch2].append(resn2)
+                    if distvar >= distclash: fw.write     (chf+'\t'+str(resnf)+'\t'+rest1+'\t'+at1+'\t'+ch2+'\t'+str(resn2)+'\t'+rest2+'\t'+atomt2+'\t'+sdistvar+'\n')
+                    else:                    fwclash.write(chf+'\t'+str(resnf)+'\t'+rest1+'\t'+at1+'\t'+ch2+'\t'+str(resn2)+'\t'+rest2+'\t'+atomt2+'\t'+sdistvar+'\n')
+                    if write2:
+                        fw2.write(l)
+                        write2=False
+
+    #Add previous and later residue to prevent extra addition of a H by reduce
+    dicChKeep2 = defaultdict(list)
+    for ch in dicChKeep:
+        for resn in dicChKeep[ch]:
+            for resnv in [resn-1,resn,resn+1]:
+                if resnv not in dicChKeep2: dicChKeep2[ch].append(resnv)
+    with open(pdboutlarge,'w') as fw3:
+        for l in fl:
+            if l.startswith('ATOM') or l.startswith('HETATM'):
+                ch2=l[21]
+                resn2=int(l[22:26])
+                if (l[21]==chf and int(l[22:26])==resnf) or resn2 in dicChKeep2[ch2]: fw3.write(l)
+    fw.close()
+    fw2.close()
+
+def CheckWatersFromSymmetry(pdbin,pdbsym,chf,resnf,dist=2.5):
+    resnf=int(resnf)
+    with open(pdbin)  as f: fl1=f.readlines()
+    with open(pdbsym) as f: fl2=f.readlines()
+    DicRes={}
+    for l in fl1:
+        if l.startswith('ATOM') and l[21]==chf and int(l[22:26])==resnf and l[12:16] not in (' N  ',' C  ',' O  '):#' CA ',
+            atomt1=l[12:16]
+            rest1=l[17:20]
+            pos1=(float(l[30:38]),float(l[38:46]),float(l[46:54]))
+            DicRes[atomt1]=pos1
+    #print (DicRes)
+    LChResnRemove=[]
+    for l in fl2:
+        if l.startswith('HETATM') and l[17:20]=='HOH':
+            ch2=l[21]
+            resn2=int(l[22:26])
+            pos2=(float(l[30:38]),float(l[38:46]),float(l[46:54]))
+            for at1,pos1 in DicRes.items():
+                distvar=CalculateEuclidianDistance(pos1,pos2)
+                if distvar>15: break
+                #print(ch2, resn2, pos2,distvar)
+                #print (at1,ch2,resn2,'%.3f'%(distvar))
+                if distvar<dist:
+                    LChResnRemove.append( (ch2,resn2) )
+    return LChResnRemove
+
+def RemoveWat(LChResnWat,pdbin,pdbout):
+    with open(pdbin) as f: fl = f.readlines()
+    with open(pdbout,'w') as fw:
+        for l in fl:
+            if l.startswith('HETATM') and l[17:20]=='HOH' and (l[21],int(l[22:26])) in LChResnWat: pass
+            else: fw.write(l)
+
+def CheckWatPDBs(pdb1,pdb2):
+    with open(pdb1) as f: fl1 = f.readlines()
+    with open(pdb2) as f: fl2 = f.readlines()
+    linWat1=[]
+    for l in fl1:
+        if l.startswith('HETATM') and l[17:20] == 'HOH': linWat1.append(l[11:26])
+    linWat2=[]
+    for l in fl2:
+        if l.startswith('HETATM') and l[17:20] == 'HOH': linWat2.append(l[11:26])
+    linWat1=set(linWat1)
+    linWat2=set(linWat2)
+    ldiff=list( linWat1-linWat2 ) + list( linWat2-linWat1 )
+    return ldiff
+
+def RetrieveSumClashSSbond(clashin,maxdist=2.4):
+    with open(clashin) as f: fl=f.readlines()
+    SumClash=0
+    nSSb=0
+    for l in fl[1:]:
+        l=l.split()
+        if l[2]=='CYS' and l[6]=='CYS' and l[3]=='SG' and l[7]=='SG': nSSb+=1
+        else: SumClash+=maxdist-float(l[-1])
+    return SumClash,nSSb
+
+def readPhenixClashscore(log,chf,resnf):
+    with open(log) as f: fr=f.readlines()
+    clashscoresum=0.0
+    check=False
+    for l in fr:
+        if l=='Bad Clashes >= 0.4 Angstrom:\n':
+            check=True
+            #print ('1:',l)
+        elif check:
+            #print ('2:',l)
+            if l.startswith('clashscore'): clashscore=float(l.split()[-1])
+            else:
+                l=l.split()
+                ch1,resn1=l[0],int(l[1])
+                ch2,resn2=l[4],int(l[5])
+                if chf in [ch1,ch2] and resnf in [resn1,resn2]: clashscoresum+=float(l[-1][1:])
+    return clashscore,clashscoresum
+
+def ReturnHSaltbonds(login,chf,resnf):
+    with open(login) as f: fr = f.readlines()
+    nH=0
+    nSalt=0
+    check=False
+    for l in fr:
+        if l=='n    s   type  num  typ     dist DA aas  dist angle  dist       angle   num\n': check=True
+        elif check:
+            lc=[ (l[0],int(l[1:5])), (l[14],int(l[15:19])) ]
+            if (chf,resnf) in lc:
+                if l[6:12]  in ('LYS NZ','ARG NH') and l[20:26] in ('GLU OE','ASP OD') or l[6:12] in ('GLU OE','ASP OD') and l[20:26] in ('LYS NZ','ARG NH'): nSalt+=1
+                else: nH+=1
+    return nH,nSalt
+
+
+def ReturnHydInt(login):
+    with open(login) as f: fr = f.readlines()
+    nHydInt=0
+    for l in fr[1:]:
+        l=l.split()
+        atomt1=l[3]
+        rest1=l[2]
+        atomt2=l[7]
+        rest2=l[6]
+        if rest1 in DicHydrophobic and atomt1 in DicHydrophobic[rest1] and rest2 in DicHydrophobic and atomt2 in DicHydrophobic[rest2]: nHydInt+=1
+    return nHydInt
+
+# def ReadRotamerProb(tablein='/home/rborges/DATA/DunbrackRotamerLibrary/Everything-5/SimpleOpt1-5/ALL.bbdep.rotamers.lib'):
+#     with open(tablein) as f: fr.readlines()
+#     dicaa={}
+#     for l in fr:
