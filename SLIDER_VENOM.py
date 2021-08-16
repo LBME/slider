@@ -461,18 +461,18 @@ NewNProcCoot=int(NewNProcCoot/4)
 print (NewNProcCoot  ,'processors for coot jobs.')
 
 #Run Residue Depth from https://biopython.org/docs/1.75/api/Bio.PDB.ResidueDepth.html
-parser = Bio.PDB.PDBParser()
-structure = parser.get_structure("ResDepth", pdb)
-model = structure[0]
-rd = Bio.PDB.ResidueDepth(model)
-resdepth=open(output_folder+'_ResDepth.log','w')
-resdepth.write('Ch\tResN\tResDepth')
-for ch,dires in dic_pos_aa.items():
-    for resn,lmut in dires.items():
-        resdepthvar=rd[ch, (' ', resn, ' ')]
-        resdepthvar='%.1f'%(resdepthvar[1])
-        resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
-exit()
+if not os.path.isfile(output_folder+'_ResDepth.log'):
+    parser = Bio.PDB.PDBParser()
+    structure = parser.get_structure("ResDepth", pdb)
+    model = structure[0]
+    rd = Bio.PDB.ResidueDepth(model)
+    resdepth=open(output_folder+'_ResDepth.log','w')
+    resdepth.write('Ch\tResN\tResDepth')
+    for ch,dires in dic_pos_aa.items():
+        for resn,lmut in dires.items():
+            resdepthvar=rd[ch, (' ', resn, ' ')]
+            resdepthvar='%.1f'%(resdepthvar[1])
+            resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
 
 RJB_lib.mkdir(output_folder+'/eval')
 for ch,dires in dic_pos_aa.items():
@@ -518,11 +518,14 @@ for ch,dires in dic_pos_aa.items():
 
         #Evaluation of clashes and interactions (hydrogen / SS-bond / hydrophobic) and their energy
         outfold2=output_folder + '/eval/'+ch+'/'+stresn
+        #print ('Generating files in',outfold2)
         RJB_lib.mkdir(outfold2)
         # fwclashes.write(str(resn))
         if not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_clash.log') and not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_nInt.log'):
+            print ('Evaluating clashes and interactions in folder',outfold2)
         # Found a water molecule (from symmetry) laying in top of 2B04/A1E, need to remove waters
             for a in lmut:
+                #print(ch, stresn,a)
                 outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
                 outf = outfold2 +'/'+ stresn + a + '.pdb'
                 # t1 = time.time()
