@@ -7279,6 +7279,20 @@ def GenerateSym (pdbin,pdbout,dist=5.5,pymolpath='pymol',pymolins=''): #both sho
         fw.write('quit')
     os.system(pymolpath+' -c '+pymolins+' > /dev/null') #'+pymolins[:-4]+'_pymol.log')
 
+def GenerateSymKeepNearRes (pdbin,pdbout,ch,NRes,dist=5.5,pymolpath='pymol',pymolins=''): #both should be strings
+    pdb=pdbin[pdbin.rindex('/')+1:-4]
+    #print(pdbin, pdbout, pymolins)
+    if pymolins=='': pymolins=pdbout[:-3] + 'pml'
+    with open(pymolins, 'w') as fw:
+        fw.write('load '+pdbin+'\n')
+        fw.write('select chain '+ch+' and resi '+str(NRes)+'\n')
+        fw.write('symexp sym,'+pdb+',('+pdb+'),'+str(dist)+'\n')
+        fw.write('select br. all within '+str(dist)+' of sele\n')
+        fw.write('save '+pdbout+', sele\n')
+        fw.write('quit')
+    os.system(pymolpath+' -c '+pymolins+' > /dev/null') #'+pymolins[:-4]+'_pymol.log')
+
+
 def ChangeChSym(pdbin,pdbout):
     with open(pdbin) as f: fl=f.readlines()
     CheckStr=[]

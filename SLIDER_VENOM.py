@@ -530,7 +530,8 @@ for ch,dires in dic_pos_aa.items():
                 outf = outfold2 +'/'+ stresn + a + '.pdb'
                 # t1 = time.time()
                 if not os.path.isfile(outf):
-                    RJB_lib.GenerateSym(pdbin=outi,pdbout=outf,dist=5.5)
+                    #RJB_lib.GenerateSym(pdbin=outi,pdbout=outf,dist=5.5)
+                    RJB_lib.GenerateSymKeepNearRes(pdbin=outi,pdbout=outf, ch=ch, NRes=stresn, dist=5.5, pymolpath='pymol', pymolins='')
                 # t2 = time.time()
                 #print (a)
                     LRemoveWatChResnVar=RJB_lib.CheckWatersFromSymmetry(pdbin=outi,pdbsym=outf,chf=ch,resnf=resn,dist=2.5)
