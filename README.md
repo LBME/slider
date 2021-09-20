@@ -107,19 +107,19 @@ RETURNS: a table with peptide PrimaryScore PPM
 
 #ObtainPeptidesPEAKSRunHTML.py
 
-08 April 2020
-Author : Rafael Borges
-Objetive: Obtain positive SLIDER peptides from overall run from PEAKS HTML output
-It reads a sequence and PEAKS HTML output with all values
-It returns each peptide among its -10lgP
-
+08 April 2020\
+Author : Rafael Borges\
+Objetive: Obtain positive SLIDER peptides from overall run from PEAKS HTML output\
+It reads a sequence and PEAKS HTML output with all values\
+It returns each peptide among its -10lgP\
 ```
 USAGE: ObtainPeptidesPatternLabRun.py seq.seq PEAKS.html OutputFile
 ```
-seq.seq has just the sequence without >
-PEAKS.html exactly like PEAKS html output
-OutputFile should be a new path
-
-RETURNS: a table with peptide PrimaryScore PPM
-         a file with each peptide with its position in sequence
-
+seq.seq has just the sequence without >\
+PEAKS.html exactly like PEAKS html output\
+OutputFile should be a new path\
+\
+RETURNS: a table with peptide PrimaryScore PPM\
+         a file with each peptide with its position in sequence\
+\
+(C) 2021 Rafael Junqueira Borges 
