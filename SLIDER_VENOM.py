@@ -36,7 +36,7 @@ typeee = sys.argv[5]
 #typeee may be:
 #MASPEC: use partial MASS SPECTROMETRY DATA
 #TRYALL: try all possibilities
-#CONSTRUCT: add word CONSTRUCT to construct the model while it runs... Desactivated
+##CONSTRUCT: add word CONSTRUCT to construct the model while it runs... Desactivated
 #SINGLE: for structures composed of single protein
 #ALIGN: alignment file
 #MAINCHAIN: keep all atoms in residue for generating phenix.polder CC
@@ -44,9 +44,13 @@ typeee = sys.argv[5]
 #SELCH: do not calculate chains given in sys.argv[6] , should be A,B,C or A
 #SKIPTEST: will not use RAM memory calculation / TEST
 #BRAGG: use 40 cores
+#ML: calculation of residue depth, number and type of side chain interactions and clashes
 
 if 'SELCH' in typeee: RemoveChains=sys.argv[6].split(',')
 else:                 RemoveChains=False
+
+if 'ML' in typeee: ML=True
+else:              ML=False
 
 #clashes check VDW radii (0.4 A):
 #PON-SC           https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-017-1947-7
@@ -461,18 +465,19 @@ NewNProcCoot=int(NewNProcCoot/4)
 print (NewNProcCoot  ,'processors for coot jobs.')
 
 #Run Residue Depth from https://biopython.org/docs/1.75/api/Bio.PDB.ResidueDepth.html
-if not os.path.isfile(output_folder+'_ResDepth.log'):
-    parser = Bio.PDB.PDBParser()
-    structure = parser.get_structure("ResDepth", pdb)
-    model = structure[0]
-    rd = Bio.PDB.ResidueDepth(model)
-    resdepth=open(output_folder+'_ResDepth.log','w')
-    resdepth.write('Ch\tResN\tResDepth')
-    for ch,dires in dic_pos_aa.items():
-        for resn,lmut in dires.items():
-            resdepthvar=rd[ch, (' ', resn, ' ')]
-            resdepthvar='%.1f'%(resdepthvar[1])
-            resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
+if ML:
+    if not os.path.isfile(output_folder+'_ResDepth.log'):
+        parser = Bio.PDB.PDBParser()
+        structure = parser.get_structure("ResDepth", pdb)
+        model = structure[0]
+        rd = Bio.PDB.ResidueDepth(model)
+        resdepth=open(output_folder+'_ResDepth.log','w')
+        resdepth.write('Ch\tResN\tResDepth')
+        for ch,dires in dic_pos_aa.items():
+            for resn,lmut in dires.items():
+                resdepthvar=rd[ch, (' ', resn, ' ')]
+                resdepthvar='%.1f'%(resdepthvar[1])
+                resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
 
 RJB_lib.mkdir(output_folder+'/eval')
 for ch,dires in dic_pos_aa.items():
@@ -515,149 +520,152 @@ for ch,dires in dic_pos_aa.items():
                         print ("FATAL ERROR: I cannot load correctly information of CPUs.")
                         exit()
 
-
-        #Evaluation of clashes and interactions (hydrogen / SS-bond / hydrophobic) and their energy
-        outfold2=output_folder + '/eval/'+ch+'/'+stresn
-        #print ('Generating files in',outfold2)
-        RJB_lib.mkdir(outfold2)
-        # fwclashes.write(str(resn))
-        if not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_clash.log') and not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_nInt.log'):
-            print ('Evaluating clashes and interactions in folder',outfold2)
-        # Found a water molecule (from symmetry) laying in top of 2B04/A1E, need to remove waters
-            for a in lmut:
-                #print(ch, stresn,a)
-                outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
-                outf = outfold2 +'/'+ stresn + a + '.pdb'
-                # t1 = time.time()
-                if not os.path.isfile(outf):
-                    #RJB_lib.GenerateSym(pdbin=outi,pdbout=outf,dist=5.5)
-                    RJB_lib.GenerateSymKeepNearRes(pdbin=outi,pdbout=outf, ch=ch, NRes=stresn, dist=5.5, pymolpath='pymol', pymolins='')
-                # t2 = time.time()
-                #print (a)
-                    LRemoveWatChResnVar=RJB_lib.CheckWatersFromSymmetry(pdbin=outi,pdbsym=outf,chf=ch,resnf=resn,dist=2.5)
-                    RJB_lib.RemoveWat(LChResnWat=LRemoveWatChResnVar,pdbin=outf,pdbout=outf)
-                #print (a,LRemoveWatChResnVar)
-                #ldiff=RJB_lib.CheckWatPDBs(pdb1=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb2',pdb2=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb')
-                #if ldiff!=[]: print (resn,a,ldiff)
-            #exit()
-            fwclash=open(outfold2+'/'+ ch+'_'+stresn + '_clash.log','w')
-            fwclash.write('Aa\tSClDist\tPhClSum\tPhClSc')
-            fwInt=open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log','w')
-            fwInt.write('Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
-            # for a in lmut: fwclash.write()
-            for a in lmut:
-                outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
-                outf = outfold2 +'/'+ stresn + a + '.pdb'
-                # t2 = time.time()
-                RJB_lib.ChangeChSym(pdbin=outf,pdbout=outf)
-                # t3 = time.time()
-                outfhbplus=outf[:-4]+'_4hbplus.pdb'
-                loghbplus=outfhbplus[:-3]+'hb2'
-                outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
-                logfphenixclash=outfphenixclash[:-3]+'log'
-                logfclash=outf[:-4]+'_clash.log'
-                if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
-                    RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
-                SumClashDist,nSSb=RJB_lib.RetrieveSumClashSSbond(clashin=logfclash,maxdist=2.5)
-                if not os.path.isfile(logfphenixclash):
-                    os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
-                clashscore,clashscoresum=RJB_lib.readPhenixClashscore(log=logfphenixclash,chf=ch,resnf=resn)
-                SumClashDist,clashscoresum,clashscore='%.1f'%(SumClashDist),'%.1f'%(clashscoresum),'%.1f'%(clashscore)
-                #print (a,SumClashDist,clashscoresum,clashscore )
-                fwclash.write('\n'+a+'\t'+SumClashDist+'\t'+clashscoresum+'\t'+clashscore)
-                # print (clashscore,clashscoresum)
-
-                #os.remove(outf)
-                # t4 = time.time()
-                # print('t of GenerateSym = ',t2-t1)
-                # print('t of ChangeChSym = ', t3 - t2)
-                # print('t of RemoveCheckResAboveDist = ', t4 - t3)
-                if not os.path.isfile(loghbplus):
-                    os.system('/home/rborges/LigPlus/lib/exe_linux64/hbplus '+outfhbplus+' > /dev/null')
-                    # print (loghbplus[loghbplus.rindex('/')+1:],loghbplus)
-                    shutil.move(loghbplus[loghbplus.rindex('/')+1:],loghbplus)
-                nH,nSalt=RJB_lib.ReturnHSaltbonds(login=loghbplus,chf=ch,resnf=resn)
-                #print (loghbplus,nH)
-                nHydInt=RJB_lib.ReturnHydInt(login=outf[:-4]+'_dist.log')
-                energySC=62*nSSb+(nH+nSalt)*3+nHydInt*0.7
-                senergySC='%.1f'%(energySC)
-                fwInt.write('\n'+a+'\t'+str(nSSb)+'\t'+str(nH)+'\t'+str(nSalt)+'\t'+str(nHydInt)+'\t'+senergySC) #'Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
+        if ML:
+            #Evaluation of clashes and interactions (hydrogen / SS-bond / hydrophobic) and their energy
+            outfold2=output_folder + '/eval/'+ch+'/'+stresn
+            #print ('Generating files in',outfold2)
+            RJB_lib.mkdir(outfold2)
+            # fwclashes.write(str(resn))
+            #if not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_clash.log') and not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_nInt.log'):
+            if True:
+                print ('Evaluating clashes and interactions in folder',outfold2)
+            # Found a water molecule (from symmetry) laying in top of 2B04/A1E, need to remove waters
+                for a in lmut:
+                    #print(ch, stresn,a)
+                    outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
+                    outf = outfold2 +'/'+ stresn + a + '.pdb'
+                    # t1 = time.time()
+                    if not os.path.isfile(outf):
+                        #RJB_lib.GenerateSym(pdbin=outi,pdbout=outf,dist=5.5)
+                        RJB_lib.GenerateSymKeepNearRes(pdbin=outi,pdbout=outf, ch=ch, NRes=stresn, dist=5.5, pymolpath='pymol', pymolins='')
+                    # t2 = time.time()
+                    #print (a)
+                        LRemoveWatChResnVar=RJB_lib.CheckWatersFromSymmetry(pdbin=outi,pdbsym=outf,chf=ch,resnf=resn,dist=2.5)
+                        RJB_lib.RemoveWat(LChResnWat=LRemoveWatChResnVar,pdbin=outf,pdbout=outf)
+                    #print (a,LRemoveWatChResnVar)
+                    #ldiff=RJB_lib.CheckWatPDBs(pdb1=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb2',pdb2=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb')
+                    #if ldiff!=[]: print (resn,a,ldiff)
                 #exit()
-                #RJB_lib.Run_hbplus(pdbin=outi,hbplus='/home/rborges/LigPlus/lib/exe_linux64/hbplus')
-                # print (outf)
-                # exit()
-            #exit()
-            fwclash.close()
-            fwInt.close()
+                fwclash=open(outfold2+'/'+ ch+'_'+stresn + '_clash.log','w')
+                fwclash.write('Aa\tSClDist\tPhClSum\tPhClSc')
+                fwInt=open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log','w')
+                fwInt.write('Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
+                # for a in lmut: fwclash.write()
+                for a in lmut:
+                    outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
+                    outf = outfold2 +'/'+ stresn + a + '.pdb'
+                    # t2 = time.time()
+                    RJB_lib.ChangeChSym(pdbin=outf,pdbout=outf)
+                    # t3 = time.time()
+                    outfhbplus=outf[:-4]+'_4hbplus.pdb'
+                    loghbplus=outfhbplus[:-3]+'hb2'
+                    outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
+                    logfphenixclash=outfphenixclash[:-3]+'log'
+                    logfclash=outf[:-4]+'_clash.log'
+                    if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
+                        RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
+                    SumClashDist,nSSb=RJB_lib.RetrieveSumClashSSbond(clashin=logfclash,maxdist=2.5)
+                    if not os.path.isfile(logfphenixclash):
+                        os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
+                    #print (logfphenixclash)
+                    clashscore,clashscoresum=RJB_lib.readPhenixClashscore(log=logfphenixclash,chf=ch,resnf=resn)
+                    SumClashDist,clashscoresum,clashscore='%.1f'%(SumClashDist),'%.1f'%(clashscoresum),'%.1f'%(clashscore)
+                    #print (a,SumClashDist,clashscoresum,clashscore )
+                    fwclash.write('\n'+a+'\t'+SumClashDist+'\t'+clashscoresum+'\t'+clashscore)
+                    # print (clashscore,clashscoresum)
 
-#Join information from clashes
-with open(output_folder+'_clashes.log','w') as fwclash:
-    fwclash.write('Ch\tResN\tResT\tSClDist\tPhClSum\tPhClSc\n\n')
-    for ch,dires in dic_pos_aa.items():
-        for resn in dires:
-            stresn=str(resn)
-            outfold2 = output_folder + '/eval/' + ch + '/' + stresn
-            with open(outfold2+'/'+ ch+'_'+stresn + '_clash.log') as f: fr=f.readlines()
-            for l in fr[1:]: fwclash.write(ch+'\t'+stresn+'\t'+l)
-            fwclash.write('\n\n')
+                    #os.remove(outf)
+                    # t4 = time.time()
+                    # print('t of GenerateSym = ',t2-t1)
+                    # print('t of ChangeChSym = ', t3 - t2)
+                    # print('t of RemoveCheckResAboveDist = ', t4 - t3)
+                    if not os.path.isfile(loghbplus):
+                        os.system('/home/rborges/LigPlus/lib/exe_linux64/hbplus '+outfhbplus+' > /dev/null')
+                        # print (loghbplus[loghbplus.rindex('/')+1:],loghbplus)
+                        shutil.move(loghbplus[loghbplus.rindex('/')+1:],loghbplus)
+                    nH,nSalt=RJB_lib.ReturnHSaltbonds(login=loghbplus,chf=ch,resnf=resn)
+                    #print (loghbplus,nH)
+                    nHydInt=RJB_lib.ReturnHydInt(login=outf[:-4]+'_dist.log')
+                    energySC=62*nSSb+(nH+nSalt)*3+nHydInt*0.7
+                    senergySC='%.1f'%(energySC)
+                    fwInt.write('\n'+a+'\t'+str(nSSb)+'\t'+str(nH)+'\t'+str(nSalt)+'\t'+str(nHydInt)+'\t'+senergySC) #'Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
+                    #exit()
+                    #RJB_lib.Run_hbplus(pdbin=outi,hbplus='/home/rborges/LigPlus/lib/exe_linux64/hbplus')
+                    # print (outf)
+                    # exit()
+                #exit()
+                fwclash.close()
+                fwInt.close()
 
-#Join information from interaction
-with open(output_folder+'_interaction.log','w') as fwInt:
-    fwInt.write('Ch\tResN\tResT\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy\n\n')
-    for ch,dires in dic_pos_aa.items():
-        for resn in dires:
-            stresn=str(resn)
-            outfold2 = output_folder + '/eval/' + ch + '/' + stresn
-            with open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log') as f: fr=f.readlines()
-            for l in fr[1:]: fwInt.write(ch+'\t'+stresn+'\t'+l)
-            fwInt.write('\n\n')
+if ML:
+    #Join information from clashes
+    with open(output_folder+'_clashes.log','w') as fwclash:
+        fwclash.write('Ch\tResN\tResT\tSClDist\tPhClSum\tPhClSc\n\n')
+        for ch,dires in dic_pos_aa.items():
+            for resn in dires:
+                stresn=str(resn)
+                outfold2 = output_folder + '/eval/' + ch + '/' + stresn
+                with open(outfold2+'/'+ ch+'_'+stresn + '_clash.log') as f: fr=f.readlines()
+                for l in fr[1:]: fwclash.write(ch+'\t'+stresn+'\t'+l)
+                fwclash.write('\n\n')
+
+    #Join information from interaction
+    with open(output_folder+'_interaction.log','w') as fwInt:
+        fwInt.write('Ch\tResN\tResT\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy\n\n')
+        for ch,dires in dic_pos_aa.items():
+            for resn in dires:
+                stresn=str(resn)
+                outfold2 = output_folder + '/eval/' + ch + '/' + stresn
+                with open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log') as f: fr=f.readlines()
+                for l in fr[1:]: fwInt.write(ch+'\t'+stresn+'\t'+l)
+                fwInt.write('\n\n')
 
 
 
-# ROTAMER EVALUATION
-DicRotResults={}         # dic that contains rotamer results [ch][resn][restype]=Favored/Allowed/OUTLIER
-for res in ['C',  'D',  'E',  'F',  'H',  'I',  'K',  'L',  'M',  'N',  'P',  'Q',  'R',  'S',  'T',  'V',  'W',  'Y'  ]:
-    fwrot=open(output_folder+'_rotamers.log','w')
-    #output labels in output_folder+'_rotamers.log'
-    fwrot.write('Ch\tResN')
-    for r in ['C', 'D', 'E', 'F', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']: fwrot.write('\t'+r)
-    DicRot=defaultdict(list) # dic that contains what residues were evaluated
-    for ch,dires in dic_pos_aa.items():
-        if ch not in DicRotResults: DicRotResults[ch]={}
-        for resn, lmut in dires.items():
-            if res in lmut: DicRot[ch].append(resn)
-    outfold2 = output_folder + '/eval/'
-    countatom=1
-    #for each amino acid type, output pdb file containing all of residues within this aa type
-    if not os.path.isfile(outfold2+res+'.pdb'):
-        with open(outfold2+res+'.pdb','w') as fwpdb:
-            for ch,lresn in DicRot.items():
-                for resn in lresn:
-                    stresn=str(resn)
-                    with open(output_folder+'/'+ch+'/'+stresn+'/'+stresn+res+'.pdb') as f: fr=f.readlines()
-                    for l in fr:
-                        if l.startswith('ATOM') and l[21]==ch and int(l[22:26])==resn:
-                            #correct atom number
-                            scountatom=str(countatom)
-                            l='ATOM'+' '*(7-len(scountatom))+scountatom+l[11:]
-                            fwpdb.write(l)
-                            countatom+=1
-    #print (outfold2+res+'.pdb')
-    if not os.path.isfile(outfold2+res+'.log'): os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
-    with open(outfold2+res+'.log') as f: fr=f.readlines()
-    for l in fr[1:-1]:
-        ch=l[1]
-        resn=int(l[2:6])
-        l=l.split(':')
-        rottype=l[-1]
-        rotval=l[-2]
-        if resn not in DicRotResults[ch]: DicRotResults[ch][resn]={}
-        DicRotResults[ch][resn][res]=rotval
-for ch,dicresnaarot in DicRotResults.items():
-    for resn,dicaarot in dicresnaarot.items():
-        fwrot.write('\n'+ch+'\t'+str(resn))
-        for aa,rotval in dicaarot.items():
-            fwrot.write('\t'+rotval)
+    # ROTAMER EVALUATION
+    DicRotResults={}         # dic that contains rotamer results [ch][resn][restype]=Favored/Allowed/OUTLIER
+    for res in ['C',  'D',  'E',  'F',  'H',  'I',  'K',  'L',  'M',  'N',  'P',  'Q',  'R',  'S',  'T',  'V',  'W',  'Y'  ]:
+        fwrot=open(output_folder+'_rotamers.log','w')
+        #output labels in output_folder+'_rotamers.log'
+        fwrot.write('Ch\tResN')
+        for r in ['C', 'D', 'E', 'F', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']: fwrot.write('\t'+r)
+        DicRot=defaultdict(list) # dic that contains what residues were evaluated
+        for ch,dires in dic_pos_aa.items():
+            if ch not in DicRotResults: DicRotResults[ch]={}
+            for resn, lmut in dires.items():
+                if res in lmut: DicRot[ch].append(resn)
+        outfold2 = output_folder + '/eval/'
+        countatom=1
+        #for each amino acid type, output pdb file containing all of residues within this aa type
+        if not os.path.isfile(outfold2+res+'.pdb'):
+            with open(outfold2+res+'.pdb','w') as fwpdb:
+                for ch,lresn in DicRot.items():
+                    for resn in lresn:
+                        stresn=str(resn)
+                        with open(output_folder+'/'+ch+'/'+stresn+'/'+stresn+res+'.pdb') as f: fr=f.readlines()
+                        for l in fr:
+                            if l.startswith('ATOM') and l[21]==ch and int(l[22:26])==resn:
+                                #correct atom number
+                                scountatom=str(countatom)
+                                l='ATOM'+' '*(7-len(scountatom))+scountatom+l[11:]
+                                fwpdb.write(l)
+                                countatom+=1
+        #print (outfold2+res+'.pdb')
+        if not os.path.isfile(outfold2+res+'.log'): os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
+        with open(outfold2+res+'.log') as f: fr=f.readlines()
+        for l in fr[1:-1]:
+            ch=l[1]
+            resn=int(l[2:6])
+            l=l.split(':')
+            rottype=l[-1]
+            rotval=l[-2]
+            if resn not in DicRotResults[ch]: DicRotResults[ch][resn]={}
+            DicRotResults[ch][resn][res]=rotval
+    for ch,dicresnaarot in DicRotResults.items():
+        for resn,dicaarot in dicresnaarot.items():
+            fwrot.write('\n'+ch+'\t'+str(resn))
+            for aa,rotval in dicaarot.items():
+                fwrot.write('\t'+rotval)
 
 
 
@@ -1022,7 +1030,7 @@ for resn,lmut in dires.items():
                     f=pathorig+'/'+output_folder+'/'+ch+'/'+str(resn)+'/'+file
             lfmaps.append(f)
 for fm in lfmaps:
-    maps.write( '( make-and-draw-map "' + fm+'" "mFo-DFc_polder" "PHImFo-DFc_polder" "" 0 1)\n')
+    maps.write( '( make-and-draw-map "' + str(fm)+'" "mFo-DFc_polder" "PHImFo-DFc_polder" "" 0 1)\n')
 maps.close()
 
 ##

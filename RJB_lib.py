@@ -7287,7 +7287,8 @@ def GenerateSymKeepNearRes (pdbin,pdbout,ch,NRes,dist=5.5,pymolpath='pymol',pymo
         fw.write('load '+pdbin+'\n')
         fw.write('select chain '+ch+' and resi '+str(NRes)+'\n')
         fw.write('symexp sym,'+pdb+',('+pdb+'),'+str(dist)+'\n')
-        fw.write('select br. all within '+str(dist)+' of sele\n')
+        fw.write('select br. all within '+str(dist)+' of sele\n') #https://pymolwiki.org/index.php/Selection_Algebra
+        # http://proteinsandwavefunctions.blogspot.com/2015/03/selecting-full-residues-within-certain.html
         fw.write('save '+pdbout+', sele\n')
         fw.write('quit')
     os.system(pymolpath+' -c '+pymolins+' > /dev/null') #'+pymolins[:-4]+'_pymol.log')
@@ -7431,10 +7432,13 @@ def readPhenixClashscore(log,chf,resnf):
             #print ('2:',l)
             if l.startswith('clashscore'): clashscore=float(l.split()[-1])
             else:
-                l=l.split()
-                ch1,resn1=l[0],int(l[1])
-                ch2,resn2=l[4],int(l[5])
-                if chf in [ch1,ch2] and resnf in [resn1,resn2]: clashscoresum+=float(l[-1][1:])
+                #l=l.split()
+                #ch1,resn1=l[0],int(l[1])
+                #ch2,resn2=l[4],int(l[5])
+                ch1, resn1 = l[1], int(l[2:6])
+                ch2, resn2 = l[18], int(l[19:23])
+                if chf in [ch1, ch2] and resnf in [resn1, resn2]: clashscoresum += float(l[-5:])
+                #if chf in [ch1,ch2] and resnf in [resn1,resn2]: clashscoresum+=float(l[-1][1:])
     return clashscore,clashscoresum
 
 def ReturnHSaltbonds(login,chf,resnf):
