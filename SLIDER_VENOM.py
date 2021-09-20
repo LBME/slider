@@ -1,6 +1,46 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# 20 September 2021
+# Author : Rafael Borges
+# Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their
+# side chain and main chain real-space correlation coefficient
+
+# USAGE: SLIDER_VENOM.py pdb_file reflections.mtz map_coeffs.mtz output TRYALL
+
+# pdb_file should be a protein coordinate file with best possible fit against electron density
+# reflections.mtz should contain intensities or amplitudes
+# map_coeffs.mtz with calculated map (2FOFCWT/PH2FOFCWT)
+# output should be a new path, a folder 'output' will contain all SLIDER output and files starting with output will
+#     summarize information:
+# type_of_run (which was TRYALL in example USAGE)
+#
+# Type_of_run should be a string with keywords and can change how SLIDER is run:
+# Amino acid possibilities can be generated in three different scenarios:
+# Trying all 20 possibilities for each residue (keyword: TRYALL)
+# Possibilities restricted by:
+#  mass spectrometry (keyword: MASSPEC)
+#  alignment (keyword: ALIGN)
+# If the last two options are chosen, an additional file containing either mass spectrometry or alignment file should be given.
+#
+# The mass spectrometry file should be a file containing text of amino acids (aa) in one letter code (FASTA), each column should contain generated aa, per example, if 1st and 3rd residue should be a F and T, and 2nd residue either L,D or N, the file should be:
+# -------------------------------------------------------------------------
+# FLT
+#  D
+#  N
+# -------------------------------------------------------------------------
+#
+# Keyword SKIPTEST should be given to skip RAM memory calculation;
+#
+# Links to the external software of Phenix and Coot should be accessible through the terminal.
+#
+# Output files:
+# output_all.log contains information of chain and residue number, RSCC and delta contrast
+# output_Resolved.log same as output_all.log, but only resolved residues
+# output_Dubious.log  same as output_all.log, but only dubious residues
+# output_runline.log has the line used to run SLIDER_VENOM.py
+# output_polder_coot_open_maps contains a script to open omit maps in coot (Go to Calculate -> Run Script -> select file)
+
 from __future__ import print_function
 from builtins import range
 from builtins import bytes, str
@@ -8,20 +48,6 @@ from builtins import bytes, str
 import os,sys,time,shutil
 import multiprocessing
 from collections import defaultdict
-#sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools")
-#sys.path.insert(0, "/cri4/rafael/Git_Scripts/git-tools/tools/Brasil")
-#sys.path.insert(0, "/cri4/rafael/Git_Scripts/SLIDER/seq_slider")
-#sys.path.insert(0, "/cri4/rafael/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
-#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools")
-#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/git-tools/tools/Brasil")
-#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
-#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
-#sys.path.insert(0, "/home/rborges/Dropbox/Git_Scripts/SLIDER/seq_slider")
-#sys.path.insert(0, "/home/rjborges/Dropbox/Git_Scripts/git-tools/tools")
-#sys.path.insert(0, "/home/rjborges/Dropbox/Git_Scripts/git-tools/tools/Brasil")
-#sys.path.insert(0, "/home/rjborges/Dropbox/Git_Scripts/REPO_EXTERNAL/ARCIMBOLDO/borges-arcimboldo/ARCIMBOLDO_FULL")
-#sys.path.insert(0, "/home/rjborges/Dropbox/Git_Scripts/REPO_EXTERNAL/borges-arcimboldo/ARCIMBOLDO_FULL")
-#sys.path.insert(0, "/home/rjborges/Dropbox/Git_Scripts/SLIDER/seq_slider")
 import RJB_lib
 import numpy
 import datetime
@@ -34,7 +60,7 @@ output_folder= sys.argv[4]
 typeee = sys.argv[5]
 
 #typeee may be:
-#MASPEC: use partial MASS SPECTROMETRY DATA
+#MASSPEC: use partial MASS SPECTROMETRY DATA
 #TRYALL: try all possibilities
 ##CONSTRUCT: add word CONSTRUCT to construct the model while it runs... Desactivated
 #SINGLE: for structures composed of single protein
@@ -225,14 +251,14 @@ if 'ALIGN' in typeee:
 if 'MAINCHAIN' in typeee: sidechainoption=False
 else: sidechainoption=True
 
-if 'MASPEC' in typeee:
+if 'MASSPEC' in typeee:
     seq=sys.argv[6]
     llseq=open(seq)
     lseq=llseq.readlines()
 #for i in dic_res['A']:
 for ch,lres in dic_res.items():
     for i in lres:
-        if 'MASPEC' in typeee:
+        if 'MASSPEC' in typeee:
             check=''
             for line in lseq:
                 if line[i-1]!=' ' and line[i-1]!='-':
@@ -261,7 +287,7 @@ for ch,lres in dic_res.items():
 ##for ch in dic_pos_aa:
 ##    print ch
 
-if 'MASPEC' not in typeee and 'TRYALL' not in typeee and 'ALIGN' not in typeee:
+if 'MASSPEC' not in typeee and 'TRYALL' not in typeee and 'ALIGN' not in typeee:
     print ('Failure. Wrong option for typeee.')
     exit()
 
@@ -273,7 +299,7 @@ if 'SINGLE' in typeee:
     newd=dic_pos_aa[ch]
     dic_pos_aa={newkey:newd}
 
-if 'ALIGN' in typeee and not 'MASPEC' in typeee and not 'TRYALL' in typeee:
+if 'ALIGN' in typeee and not 'MASSPEC' in typeee and not 'TRYALL' in typeee:
     for ch in dic_pos_aa:
         for i in dic_ali:
             for a in dic_ali[i]:
@@ -315,7 +341,7 @@ if 'ALIGN' in typeee and not 'MASPEC' in typeee and not 'TRYALL' in typeee:
 
 
 #all resn that only has one possibility will be first integrated into model
-#if 'MASPEC' in typeee:
+#if 'MASSPEC' in typeee:
 dic_seq_initial=RJB_lib.return_dic_sequence(pdb)
 d_imp={}
 impr=False
@@ -851,8 +877,8 @@ dic_impartialres=RJB_lib.return_impartial_res (pdb)
 ou=open(output_folder+'_summary.log','w')
 ou2=open(output_folder+'_all.log','w')
 ou3=open(output_folder+'_all2.log','w')
-tab=['Chain','ResN','PCCres','PCC','PCCdif%']
-tab3=['Chain','ResN','PCCres','PCC','PCCdif%','R','Rfree','Rimp','RfImp']
+tab=['Chain','ResN','AAcid','RSCC_sc','DContr']
+tab3=['Chain','ResN','AAcid','RSCC_sc','DContr','R','Rfree','Rimp','RfImp']
 if alig:
     tab.append('Align%')
     tab.append('Impartial?')
@@ -1038,7 +1064,7 @@ maps.close()
 ####FINAL TABLE
 
 ou=open(output_folder+'_final_model.log','w')
-tab=['Chain','ResN','PCCres','PCC','PCCdif%']
+tab=['Chain','ResN','AAcid','RSCC_mc','DContr']
 if alig:
     tab.append('Align%')
     tab.append('Impartial?')
@@ -1114,7 +1140,7 @@ print ('Finishing '+sys.argv[0]+' '+date)
 ####writting table main chain
 
 ou = open(output_folder + '/mainchain/mainchain_summary.log', 'w')
-tab = ['Chain', 'ResN', 'PCC']
+tab = ['Chain', 'ResN', 'RSCC_mc']
 ou.write(tab[0])
 for t in tab[1:]:
     ou.write('\t' + t)
@@ -1126,7 +1152,7 @@ for ch,dicresn in dicmainchain.items():
         ou.write(cc13)
 ou.close()
 
-tab = ['Chain', 'ResN', 'PCC','PCCdiff','PCCmainCh']
+tab = ['Chain', 'ResN', 'AAcid','DContr','RSCC_mc']
 outResolved=open(output_folder+'_Resolved.log','w')
 outDubious =open(output_folder+'_Dubious.log','w')
 
