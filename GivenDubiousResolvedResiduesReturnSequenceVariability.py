@@ -23,7 +23,7 @@ with open (inputRes) as f: frRes=f.readlines()
 
 dicall={}
 vrscc1=0.0
-for l in frDub:
+for l in frDub[1:]:
     l=l.split()
     if len(l)>1:
         if l[2]!='MainCh':

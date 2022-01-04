@@ -24,7 +24,7 @@ seqinput         = sys.argv[1] #FASTA - single line
 PEAKSInput       = sys.argv[2] #PEAKSInput file
 outfile          = sys.argv[3] #where files will be organized
 try: exclude     = sys.argv[4].split(',')
-except: pass
+except: exclude=False
 
 def GivenTwoSeqsReturnIndexMatch (seq1,seq2):
     if len(seq1)>len(seq2): seqA,seqB = seq1 , seq2
@@ -73,10 +73,11 @@ for l in fr1:
         elif l=='</tr>\n':
             #check if strings in list is contained in protein description
             ccount=0
-            for strr in exclude:
-                if strr not in protdesc: ccount+=1
-            if ccount==len(exclude): dicprotcodes[protcode]=protdesc
-            else:                    print ('Excluded peptides of',protdesc)
+            if exclude:
+                for strr in exclude:
+                    if strr not in protdesc: ccount+=1
+                if ccount==len(exclude): dicprotcodes[protcode]=protdesc
+                else:                    print ('Excluded peptides of',protdesc)
         #end section of protein names (Description)
         elif l=='</tbody>\n': check2,check3,checkPept=False,False,True
 
@@ -115,7 +116,7 @@ for l in fr1:
             else:
                 if PScore>dicall[pept]: dicall[pept]=PScore
 
-print (seq,'\n')
+if exclude: print (seq,'\n')
 
 # with open(outfile,'w') as fw:
 #     fw.write('#Scan Line: Unique	FileName	ScanNumber	ChargeState	PrimaryScore	DeltCN	M+H+	CalcM+H+	ZScore	BayesianScore	RedundancyAtPtnLevel	Sequence')

@@ -20,7 +20,7 @@ Possibilities restricted by:\
  alignment (keyword: ALIGN)\
 If the last two options are chosen, an additional file containing either mass spectrometry or alignment file should be given.\
 \
-The mass spectrometry file should be a file containing text of amino acids (aa) in one letter code (FASTA), each column should contain generated aa, per example, if 1st and 3rd residue should be a F and T, and 2nd residue either L,D or N, the file should be:\
+The mass spectrometry file should be a file containing text of amino acids (aa) in one letter code (FASTA), each column should contain generated aa, per example, if 1st and 3rd residue should be a F and T, and 2nd residue either L,D or N, the file should be:
 
 ```
 FLT
@@ -42,22 +42,6 @@ output_polder_coot_open_maps contains a script to open omit maps in coot (Go to 
 
 
 
-
-# ConSurf_query_msa_SLIDER.py
-
-19 April 2020\
-Author : Rafael Borges\
-Objective: Given ConSurf query_msa.aln and SLIDER table, return percentage of SLIDER residue\
-```
-USAGE: ConSurf_SLIDER.py query_msa.aln output_Resolved.log OutputFile
-```
-OutputFile should be a new path\
-\
-RETURNS: a table with SLIDER details plus absolute number and % of 100% of given residue\
-
-
-
-
 #GivenDubiousResolvedResiduesReturnSequenceVariability.py
 
 20 September 2021\
@@ -69,6 +53,22 @@ USAGE: GivenDubiousResolvedResiduesReturnSequenceVariability.py Dubious.log Reso
 OutputFile should be a new path\
 \
 RETURNS: a file with amino acid possibilities (line) by residue number (column)\
+
+
+
+
+# ConSurf_query_msa_SLIDER.py
+
+19 April 2020\
+Author : Rafael Borges\
+Objective: Given ConSurf query_msa.aln and SLIDER table, return percentage of SLIDER residue\
+```
+USAGE: ConSurf_query_msa_SLIDER.py query_msa.aln output_Resolved.log OutputFile
+```
+OutputFile should be a new path\
+\
+RETURNS: a table with SLIDER details plus absolute number and % of 100% of given residue\
+
 
 
 

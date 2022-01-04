@@ -1586,7 +1586,7 @@ def coot_mutate_sph_ref_correcting_files (pdb,mtz_phases,outpdb,dic,dic_pdb=Fals
     dic_impres=return_impartial_res (pdb)
     for ch,dresnrest in dic.items():
         for i,lmut in dresnrest.items():
-            if printtt: print ('SEQ',i,'in chain',ch,'in PDB was originnaly',dic_pdb[ch][i])
+            if printtt: print ('SEQ',i,'in chain',ch,'in PDB was originally',dic_pdb[ch][i])
             try:
                 if dic[ch][i]!=dic_pdb[ch][i] or dic_impres[ch][i]==dic[ch][i]:
                     try:
