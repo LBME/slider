@@ -42,7 +42,7 @@ output_polder_coot_open_maps contains a script to open omit maps in coot (Go to 
 
 
 
-#GivenDubiousResolvedResiduesReturnSequenceVariability.py
+# GivenDubiousResolvedResiduesReturnSequenceVariability.py
 
 20 September 2021\
 Author : Rafael Borges\
@@ -72,7 +72,7 @@ RETURNS: a table with SLIDER details plus absolute number and % of 100% of given
 
 
 
-#ObtainPeptidesPatternLabRun.py
+# ObtainPeptidesPatternLabRun.py
 
 08 April 2020\
 Author : Rafael Borges\
@@ -93,7 +93,7 @@ RETURNS: a table with peptide PrimaryScore PPM\
 
 
 
-#ObtainPeptidesPEAKSRunHTML.py
+# ObtainPeptidesPEAKSRunHTML.py
 
 08 April 2020\
 Author : Rafael Borges\
