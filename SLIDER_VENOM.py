@@ -488,6 +488,7 @@ else:
 
 #As coot now uses multiple CPUs, I am reducing by 4 the #CPU processors running coot.
 NewNProcCoot=int(NewNProcCoot/4)
+print ('As coot now uses multiple CPUs, I am reducing by 4 the #CPU processors running coot.')
 print (NewNProcCoot  ,'processors for coot jobs.')
 
 #Run Residue Depth from https://biopython.org/docs/1.75/api/Bio.PDB.ResidueDepth.html
@@ -877,8 +878,8 @@ dic_impartialres=RJB_lib.return_impartial_res (pdb)
 ou=open(output_folder+'_summary.log','w')
 ou2=open(output_folder+'_all.log','w')
 ou3=open(output_folder+'_all2.log','w')
-tab=['Chain','ResN','AAcid','RSCC_sc','DContr']
-tab3=['Chain','ResN','AAcid','RSCC_sc','DContr','R','Rfree','Rimp','RfImp']
+tab=['Chain','ResN','AAcid','RSCC_sc','DContr','SideCh']
+tab3=['Chain','ResN','AAcid','RSCC_sc','DContr','R','Rfree','Rimp','RfImp','SideCh']
 if alig:
     tab.append('Align%')
     tab.append('Impartial?')

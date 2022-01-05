@@ -22,8 +22,9 @@ import sys,os
 
 seqinput         = sys.argv[1] #FASTA - single line
 PEAKSInput       = sys.argv[2] #PEAKSInput file
-outfile          = sys.argv[3] #where files will be organized
-try: exclude     = sys.argv[4].split(',')
+RSCCInput        = sys.argv[3]
+outfile          = sys.argv[4] #where files will be organized
+try: exclude     = sys.argv[5].split(',')
 except: exclude=False
 
 def GivenTwoSeqsReturnIndexMatch (seq1,seq2):
@@ -43,6 +44,9 @@ def GivenTwoSeqsReturnIndexMatch (seq1,seq2):
             finalId=cid
             indfinalId=iA
     return finalId,indfinalId
+
+outfile1=open(outfile+'.log','w')
+outfile2=open(outfile+'.log2','w')
 
 with open(seqinput) as f: seq=f.read()
 
@@ -153,6 +157,7 @@ for l in lallclean:
     pept=l[1]
     pscore=l[2]
     print (' '*indfinalId+pept,pscore)
+    outfile1.write(' '*indfinalId+pept+' '+pscore+'\n')
     lvarseq.append(' '*indfinalId+pept)
 
 
@@ -180,3 +185,46 @@ for i in range(imax):
         else:        strvarres+=l[i]
     strvarres += '\n'
 print (strvarres)
+outfile2.write(strvarres)
+
+outfile1.close()
+outfile2.close()
+
+with open(outfile+'.log') as fscore: fr=fscore.readlines()
+
+dicscore={}
+for l in fr:
+    score=l[-7:-1]
+    try: float(score)
+    except: score=score[1:]
+    score=score.replace(' ','')
+    #print (l)
+    ri=l.rindex(' ')
+    #print (l[:ri])
+    for i,s in enumerate(l[:ri]):
+        if s!=' ':
+            if i+1 not in dicscore: dicscore[i+1]={}
+            if s in dicscore[i+1]:
+                if float(score)>float(dicscore[i+1][s]): dicscore[i+1][s]=score
+            else: dicscore[i+1][s]=score
+
+# for i in dicscore:
+#     for ii in dicscore[i]:
+#         print (i,ii,dicscore[i][ii])
+
+with open(RSCCInput) as frCC: frCCl=frCC.readlines()
+
+with open(outfile+'_table.log','w') as fwCC:
+    fwCC.write(frCCl[0][:-1]+'\t-10lgP\n')
+    for l in frCCl[1:]:
+        fwCC.write(l[:-1])
+        #print (l[:-1])
+        if l!='\n' and 'BaselineMainChain' not in l:
+            l=l.split()
+            resn=int(l[1])
+            restype=l[2][0]
+            #print (resn,restype,dicscore[resn][restype])
+            #exit()
+            if resn in dicscore and restype in dicscore[resn]:
+                fwCC.write('\t'+dicscore[resn][restype])
+        fwCC.write('\n')

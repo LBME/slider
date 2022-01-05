@@ -101,13 +101,16 @@ Objetive: Obtain positive SLIDER peptides from overall run from PEAKS HTML outpu
 It reads a sequence and PEAKS HTML output with all values\
 It returns each peptide among its -10lgP\
 ```
-USAGE: ObtainPeptidesPatternLabRun.py seq.seq PEAKS.html OutputFile
+USAGE: ObtainPeptidesPatternLabRun.py seq.seq PEAKS.html TableRSCC_all.log OutputFile
 ```
 seq.seq has just the sequence without >\
 PEAKS.html exactly like PEAKS html output\
+TableRSCC_all.log should be table that SLIDER_VENOM.py output 
 OutputFile should be a new path\
 \
-RETURNS: a table with peptide PrimaryScore PPM\
-         a file with each peptide with its position in sequence\
+RETURNS: a table with SLIDER calculations among its -10lgP\
+         a file with each peptide among its -10lgP\
+         a file with each amino acid possibility with its position in sequence\
+         
 \
 (C) 2021 Rafael Junqueira Borges 
