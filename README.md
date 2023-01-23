@@ -1,3 +1,6 @@
+If SEQUENCE SLIDER is useful to you, please cite:
+Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D dos Santos, Marcos R M Fontes, Isabel Usón, SEQUENCE SLIDER: integration of structural and genetic data to characterize isoforms from natural sources, Nucleic Acids Research, Volume 50, Issue 9, 20 May 2022, Page e50, https://doi.org/10.1093/nar/gkac029
+
 # SLIDER_VENOM.py
 
 20 September 2021\
@@ -113,4 +116,11 @@ RETURNS: a table with SLIDER calculations among its -10lgP\
          a file with each amino acid possibility with its position in sequence\
          
 \
+
+# Cite SEQUENCE SLIDER
+22 January 2022
+If SEQUENCE SLIDER is useful to you, please cite:
+Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D dos Santos, Marcos R M Fontes, Isabel Usón, SEQUENCE SLIDER: integration of structural and genetic data to characterize isoforms from natural sources, Nucleic Acids Research, Volume 50, Issue 9, 20 May 2022, Page e50, https://doi.org/10.1093/nar/gkac029
+
+(C) 2022 Rafael Junqueira Borges 
 (C) 2021 Rafael Junqueira Borges 
