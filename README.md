@@ -5,7 +5,8 @@ Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D
 
 20 September 2021\
 Author : Rafael Borges\
-Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their side chain and main chain real-space correlation coefficient
+Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their side chain and main chain real-space correlation coefficient\
+Requirements: CCP4 (https://www.ccp4.ac.uk/) and Phenix (http://www.phenix-online.org/) should be installed. In the terminal, CCP4 and Phenix should be accessible by giving the source as instructed in these software installations.
 ```
 USAGE: SLIDER_VENOM.py pdb_file reflections.mtz map_coeffs.mtz output TRYALL
 ```
