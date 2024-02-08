@@ -125,3 +125,9 @@ Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D
 
 (C) 2022 Rafael Junqueira Borges 
 (C) 2021 Rafael Junqueira Borges 
+
+SLIDER uses phenix and CCP4 tools, please also cite them:
+Agirre et al, 2023. https://doi.org/10.1107/S2059798323003595
+Liebschner et al, 2019. https://doi.org/10.1107/S2059798316018210
+Liebschner et al, 2017. https://doi.org/10.1107/S2059798319011471
+Emsley and Cowtan, 2014. https://doi.org/10.1107/S0907444904019158
