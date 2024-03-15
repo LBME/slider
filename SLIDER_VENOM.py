@@ -257,7 +257,7 @@ if 'MASSPEC' in typeee:
     seq=sys.argv[6]
     with open(seq) as f: lseq=f.readlines()
 
-print(dic_pos_aa)
+#print(dic_pos_aa)
 
 #for i in dic_res['A']:
 #Modification to consider multiple chains in MASSPEC input, Mar14,2024
@@ -519,7 +519,7 @@ if ML:
         resdepth.write('Ch\tResN\tResDepth')
         for ch,dires in dic_pos_aa.items():
             for resn,lmut in dires.items():
-                print(ch,resn,lmut)
+                #print(ch,resn,lmut)
                 resdepthvar=rd[ch, (' ', resn, ' ')]
                 resdepthvar='%.1f'%(resdepthvar[1])
                 resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
@@ -573,7 +573,7 @@ for ch,dires in dic_pos_aa.items():
             # fwclashes.write(str(resn))
             #if not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_clash.log') and not os.path.isfile(outfold2+'/'+ch+'_'+stresn+'_nInt.log'):
             if True:
-                print ('Evaluating clashes and interactions in folder',outfold2)
+                print ('Calculating clashes and interactions in folder',outfold2)
             # Found a water molecule (from symmetry) laying in top of 2B04/A1E, need to remove waters
                 for a in lmut:
                     #print(ch, stresn,a)
@@ -592,17 +592,12 @@ for ch,dires in dic_pos_aa.items():
                     #if ldiff!=[]: print (resn,a,ldiff)
                 #exit()
 
-                fwclash=open(outfold2+'/'+ ch+'_'+stresn + '_clash.log','w')
-                fwclash.write('Aa\tSClDist\tPhClSum\tPhClSc')
-                fwInt=open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log','w')
-                fwInt.write('Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
-
                 # multiprocessing implementation of phenix.clashscore, done Mar15,2024
                 def phenixclashscore(clashscore_path, pdb, log):
                     p = subprocess.Popen([clashscore_path, pdb], stdin=subprocess.PIPE,
                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                     out, err = p.communicate()
-                    print (out)
+                    #print (out)
                     with open(log, 'w') as f: f.write(out)
 
                 #t2 = time.time()
@@ -652,55 +647,65 @@ for ch,dires in dic_pos_aa.items():
 
                 # for a in lmut: fwclash.write()
 
-                for a in lmut:
-                    outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
-                    outf = outfold2 +'/'+ stresn + a + '.pdb'
-                    # t2 = time.time()
-                    RJB_lib.ChangeChSym(pdbin=outf,pdbout=outf)
-                    # t3 = time.time()
-                    outfhbplus=outf[:-4]+'_4hbplus.pdb'
-                    loghbplus=outfhbplus[:-3]+'hb2'
-                    outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
-                    logfphenixclash=outfphenixclash[:-3]+'log'
-                    logfclash=outf[:-4]+'_clash.log'
-                    # if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
-                    #     RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
-                    SumClashDist,nSSb=RJB_lib.RetrieveSumClashSSbond(clashin=logfclash,maxdist=2.5)
-                    # if not os.path.isfile(logfphenixclash):
-                    #     os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
-                    #print (logfphenixclash)
-                    clashscore,clashscoresum=RJB_lib.readPhenixClashscore(log=logfphenixclash,chf=ch,resnf=resn)
-                    SumClashDist,clashscoresum,clashscore='%.1f'%(SumClashDist),'%.1f'%(clashscoresum),'%.1f'%(clashscore)
-                    #print (a,SumClashDist,clashscoresum,clashscore )
-                    fwclash.write('\n'+a+'\t'+SumClashDist+'\t'+clashscoresum+'\t'+clashscore)
-                    # print (clashscore,clashscoresum)
+for ch, dires in dic_pos_aa.items():
+    for resn,lmut in dires.items():
+        if ML:
+            outfold2=output_folder + '/eval/'+ch+'/'+stresn
 
-                    #os.remove(outf)
-                    # t4 = time.time()
-                    # print('t of GenerateSym = ',t2-t1)
-                    # print('t of ChangeChSym = ', t3 - t2)
-                    # print('t of RemoveCheckResAboveDist = ', t4 - t3)
-                    if not os.path.isfile(loghbplus):
-                        os.system('/home/rborges/LigPlus/lib/exe_linux64/hbplus '+outfhbplus+' > /dev/null')
-                        # print (loghbplus[loghbplus.rindex('/')+1:],loghbplus)
-                        shutil.move(loghbplus[loghbplus.rindex('/')+1:],loghbplus)
-                    nH,nSalt=RJB_lib.ReturnHSaltbonds(login=loghbplus,chf=ch,resnf=resn)
-                    #print (loghbplus,nH)
-                    nHydInt=RJB_lib.ReturnHydInt(login=outf[:-4]+'_dist.log')
-                    energySC=62*nSSb+(nH+nSalt)*3+nHydInt*0.7
-                    senergySC='%.1f'%(energySC)
-                    fwInt.write('\n'+a+'\t'+str(nSSb)+'\t'+str(nH)+'\t'+str(nSalt)+'\t'+str(nHydInt)+'\t'+senergySC) #'Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
-                    #exit()
-                    #RJB_lib.Run_hbplus(pdbin=outi,hbplus='/home/rborges/LigPlus/lib/exe_linux64/hbplus')
-                    # print (outf)
-                    # exit()
+            fwclash = open(outfold2 + '/' + ch + '_' + stresn + '_clash.log', 'w')
+            fwclash.write('Aa\tSClDist\tPhClSum\tPhClSc')
+            fwInt = open(outfold2 + '/' + ch + '_' + stresn + '_nInt.log', 'w')
+            fwInt.write('Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
+
+            for a in lmut:
+                outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
+                outf = outfold2 +'/'+ stresn + a + '.pdb'
+                # t2 = time.time()
+                RJB_lib.ChangeChSym(pdbin=outf,pdbout=outf)
+                # t3 = time.time()
+                outfhbplus=outf[:-4]+'_4hbplus.pdb'
+                loghbplus=outfhbplus[:-3]+'hb2'
+                outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
+                logfphenixclash=outfphenixclash[:-3]+'log'
+                logfclash=outf[:-4]+'_clash.log'
+                # if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
+                #     RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
+                SumClashDist,nSSb=RJB_lib.RetrieveSumClashSSbond(clashin=logfclash,maxdist=2.5)
+                # if not os.path.isfile(logfphenixclash):
+                #     os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
+                #print (logfphenixclash)
+                clashscore,clashscoresum=RJB_lib.readPhenixClashscore(log=logfphenixclash,chf=ch,resnf=resn)
+                SumClashDist,clashscoresum,clashscore='%.1f'%(SumClashDist),'%.1f'%(clashscoresum),'%.1f'%(clashscore)
+                #print (a,SumClashDist,clashscoresum,clashscore )
+                fwclash.write('\n'+a+'\t'+SumClashDist+'\t'+clashscoresum+'\t'+clashscore)
+                # print (clashscore,clashscoresum)
+
+                #os.remove(outf)
+                # t4 = time.time()
+                # print('t of GenerateSym = ',t2-t1)
+                # print('t of ChangeChSym = ', t3 - t2)
+                # print('t of RemoveCheckResAboveDist = ', t4 - t3)
+                if not os.path.isfile(loghbplus):
+                    os.system('/home/rborges/LigPlus/lib/exe_linux64/hbplus '+outfhbplus+' > /dev/null')
+                    # print (loghbplus[loghbplus.rindex('/')+1:],loghbplus)
+                    shutil.move(loghbplus[loghbplus.rindex('/')+1:],loghbplus)
+                nH,nSalt=RJB_lib.ReturnHSaltbonds(login=loghbplus,chf=ch,resnf=resn)
+                #print (loghbplus,nH)
+                nHydInt=RJB_lib.ReturnHydInt(login=outf[:-4]+'_dist.log')
+                energySC=62*nSSb+(nH+nSalt)*3+nHydInt*0.7
+                senergySC='%.1f'%(energySC)
+                fwInt.write('\n'+a+'\t'+str(nSSb)+'\t'+str(nH)+'\t'+str(nSalt)+'\t'+str(nHydInt)+'\t'+senergySC) #'Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
                 #exit()
-                fwclash.close()
-                fwInt.close()
+                #RJB_lib.Run_hbplus(pdbin=outi,hbplus='/home/rborges/LigPlus/lib/exe_linux64/hbplus')
+                # print (outf)
+                # exit()
+            #exit()
+            fwclash.close()
+            fwInt.close()
 
-                #t4 = time.time()
-                # print('running All evalutation clashscore', t3 - t2)
-                # print('running Post evalutation clashscore', t4 - t3)
+            #t4 = time.time()
+            # print('running All evalutation clashscore', t3 - t2)
+            # print('running Post evalutation clashscore', t4 - t3)
 
 if ML:
     #Join information from clashes
@@ -816,10 +821,10 @@ for ch, dires in dic_pos_aa.items():
         if not os.path.isfile(outfmc):
             dic = {}
             for c1 in ch:
-                print ('c1',c1)
+                #print ('c1',c1)
                 for c in c1:
-                    print ('c',c)
-                    print ('dic_pdb[c][resn]',dic_pdb[c][resn])
+                    #print ('c',c)
+                    #print ('dic_pdb[c][resn]',dic_pdb[c][resn])
                     dic[c] = {resn:dic_pdb[c][resn]}
             RJB_lib.remove_Bfactor_occ_res_pdb(pdb_input=pdb,pdb_output=outfmc,dic_ch_resn=dic,AtomsExclude=[],AtomsInclude=['CA','N ','C ','O '])
                                                                                                             # I was writing all atoms names to be excluded,but decided to do the opposite
@@ -1061,7 +1066,7 @@ for ch,dires in dic_pos_aa.items():
         for fulli,fulll in enumerate(listadic):
             if '!' in listadic[fulli]['Residue']: FR=True
             if not FR or bcc-listadic[fulli]['CC1,3']*100<3 or '!' in listadic[fulli]['Residue']:
-                if stresn == '64': print ('here')
+                #if stresn == '64': print ('here')
                 ou3.write('\n'+ch+'\t'+stresn)
                 ou3.write('\t'+listadic[fulli]['Residue'])
                 ffcc='%.1f'%(listadic[fulli]['CC1,3']*100)
@@ -1241,9 +1246,9 @@ if 'SINGLE' not in typeee:
 
     ou.close()
 
-if 'ALIGN' in typeee:
-    for i in dic_ali:
-        print (i,dic_ali[i])
+# if 'ALIGN' in typeee:
+#     for i in dic_ali:
+#         print (i,dic_ali[i])
 
 
 
