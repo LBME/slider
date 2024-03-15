@@ -1,8 +1,12 @@
+If SEQUENCE SLIDER is useful to you, please cite:
+Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D dos Santos, Marcos R M Fontes, Isabel Usón, SEQUENCE SLIDER: integration of structural and genetic data to characterize isoforms from natural sources, Nucleic Acids Research, Volume 50, Issue 9, 20 May 2022, Page e50, https://doi.org/10.1093/nar/gkac029
+
 # SLIDER_VENOM.py
 
 20 September 2021\
 Author : Rafael Borges\
-Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their side chain and main chain real-space correlation coefficient
+Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their side chain and main chain real-space correlation coefficient\
+Requirements: CCP4 (https://www.ccp4.ac.uk/) and Phenix (http://www.phenix-online.org/) should be installed. In the terminal, CCP4 and Phenix should be accessible by giving the source as instructed in these software installations.
 ```
 USAGE: SLIDER_VENOM.py pdb_file reflections.mtz map_coeffs.mtz output TRYALL
 ```
@@ -113,4 +117,17 @@ RETURNS: a table with SLIDER calculations among its -10lgP\
          a file with each amino acid possibility with its position in sequence\
          
 \
+
+# Cite SEQUENCE SLIDER
+22 January 2022
+If SEQUENCE SLIDER is useful to you, please cite:
+Reference: Rafael J Borges, Guilherme H M Salvador, Daniel C Pimenta, Lucilene D dos Santos, Marcos R M Fontes, Isabel Usón, SEQUENCE SLIDER: integration of structural and genetic data to characterize isoforms from natural sources, Nucleic Acids Research, Volume 50, Issue 9, 20 May 2022, Page e50, https://doi.org/10.1093/nar/gkac029
+
+(C) 2022 Rafael Junqueira Borges 
 (C) 2021 Rafael Junqueira Borges 
+
+SLIDER uses phenix and CCP4 tools, please also cite them:
+Agirre et al, 2023. https://doi.org/10.1107/S2059798323003595
+Liebschner et al, 2019. https://doi.org/10.1107/S2059798316018210
+Liebschner et al, 2017. https://doi.org/10.1107/S2059798319011471
+Emsley and Cowtan, 2014. https://doi.org/10.1107/S0907444904019158
