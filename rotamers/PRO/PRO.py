@@ -1,7 +1,0 @@
-mutate (0,"A",1,"","PRO")
-set_residue_to_rotamer_name (0,"A",1,"","","Cg endo")
-write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/PRO/PRO_Cg endo.pdb")
-set_residue_to_rotamer_name (0,"A",1,"","","Cg exo")
-write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/PRO/PRO_Cg exo.pdb")
-set_residue_to_rotamer_name (0,"A",1,"","","cis Cg endo")
-write_pdb_file (0,"/home/jbruno/PycharmProjects/SLIDER/aa/PRO/PRO_cis Cg endo.pdb")
