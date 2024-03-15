@@ -52,6 +52,8 @@ import RJB_lib
 import numpy
 import datetime
 import Bio.PDB
+import re
+import subprocess
 
 pdb = sys.argv[1]
 mtz_init = sys.argv[2]
@@ -253,24 +255,39 @@ else: sidechainoption=True
 
 if 'MASSPEC' in typeee:
     seq=sys.argv[6]
-    llseq=open(seq)
-    lseq=llseq.readlines()
+    with open(seq) as f: lseq=f.readlines()
+
+print(dic_pos_aa)
+
 #for i in dic_res['A']:
+#Modification to consider multiple chains in MASSPEC input, Mar14,2024
 for ch,lres in dic_res.items():
-    for i in lres:
+    #print ('\n')
+    for imasspec,ires in enumerate(lres):
+        #print (ires)
         if 'MASSPEC' in typeee:
-            check=''
+            #EvalResMASSPEC=''
             for line in lseq:
-                if line[i-1]!=' ' and line[i-1]!='-':
-                    dic_pos_aa[ch][i].append(line[i-1])
-                    check+=line[i-1]
-            if check=='':
-                for a in amino_acid_list:
-                    dic_pos_aa[ch][i].append(a)
+                if line.startswith('>'): chmasspec=line[-2]
+                #print (chmasspec)
+                elif ch==chmasspec:
+                    if imasspec<len(line) and line[imasspec] not in [' ','-','\n']:
+                        #print ('here',line[imasspec])
+                        #exit()
+                        if line[imasspec] in dic_pos_aa[ch][ires]:
+                            print ('Repeated aminoacid',line[imasspec-1],'found in the file\n',seq)
+                            print ('Please correct it.')
+                            exit()
+                        dic_pos_aa[ch][ires].append(line[imasspec])
+                        #EvalResMASSPEC+=line[imasspec]
+            # if EvalResMASSPEC=='':
+            #     for a in amino_acid_list:
+            #         dic_pos_aa[ch][i].append(a)
         elif 'TRYALL' in typeee:
             for a in amino_acid_list:
-                dic_pos_aa[ch][i].append(a)
+                dic_pos_aa[ch][ires].append(a)
 
+#print(dic_pos_aa)
 
 
 
@@ -372,7 +389,7 @@ if not os.path.isfile (pdb[:-4]+'-areaimol.pdb'): RJB_lib.runAREAIMOLccp4 (pdbfi
 if dic_disorder!=False:
     for ch in dic_disorder:
         for resn in dic_disorder[ch]:
-            del dic_pos_aa[ch][resn]
+            if resn in dic_pos_aa[ch]: del dic_pos_aa[ch][resn]
 
 
 
@@ -502,6 +519,7 @@ if ML:
         resdepth.write('Ch\tResN\tResDepth')
         for ch,dires in dic_pos_aa.items():
             for resn,lmut in dires.items():
+                print(ch,resn,lmut)
                 resdepthvar=rd[ch, (' ', resn, ' ')]
                 resdepthvar='%.1f'%(resdepthvar[1])
                 resdepth.write('\n'+ch+'\t'+str(resn)+'\t'+resdepthvar)
@@ -573,11 +591,67 @@ for ch,dires in dic_pos_aa.items():
                     #ldiff=RJB_lib.CheckWatPDBs(pdb1=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb2',pdb2=output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb')
                     #if ldiff!=[]: print (resn,a,ldiff)
                 #exit()
+
                 fwclash=open(outfold2+'/'+ ch+'_'+stresn + '_clash.log','w')
                 fwclash.write('Aa\tSClDist\tPhClSum\tPhClSc')
                 fwInt=open(outfold2+'/'+ ch+'_'+stresn + '_nInt.log','w')
                 fwInt.write('Aa\tnSSb\tnHb\tnSalt\tnHydInt\tEnergy')
+
+                # multiprocessing implementation of phenix.clashscore, done Mar15,2024
+                def phenixclashscore(clashscore_path, pdb, log):
+                    p = subprocess.Popen([clashscore_path, pdb], stdin=subprocess.PIPE,
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    out, err = p.communicate()
+                    print (out)
+                    with open(log, 'w') as f: f.write(out)
+
+                #t2 = time.time()
+                for a in lmut:
+                    outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
+                    outf = outfold2 +'/'+ stresn + a + '.pdb'
+                    RJB_lib.ChangeChSym(pdbin=outf,pdbout=outf)
+                    outfhbplus=outf[:-4]+'_4hbplus.pdb'
+                    loghbplus=outfhbplus[:-3]+'hb2'
+                    outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
+                    logfphenixclash=outfphenixclash[:-3]+'log'
+                    logfclash=outf[:-4]+'_clash.log'
+                    if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
+                        RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
+
+                    # Single processor
+                    # if not os.path.isfile(logfphenixclash):  # os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
+                    #     os.system('phenix.clashscore ' + outfphenixclash + ' > ' + logfphenixclash)
+
+                    #Multiprocessing
+                        if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
+                            #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
+                            while 1:
+                                time.sleep(0.1)
+                                if len(multiprocessing.active_children()) < nproc:
+                                    print('Running phenix.clashscore', outfphenixclash,logfphenixclash)
+                                    process = multiprocessing.Process(target=phenixclashscore, args=(
+                                    'phenix.clashscore', outfphenixclash,logfphenixclash))
+                                    process.start()
+                                    time.sleep(0.1)
+                                    break
+                        else:
+                            print("FATAL ERROR: I cannot load correctly information of CPUs.")
+                            exit()
+                while 1:
+                    time.sleep(0.1)
+                    if len(multiprocessing.active_children()) == 0:
+                        break
+                #t3 = time.time()
+
+                # for a in lmut:
+                #     outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
+                #     logfphenixclash=outfphenixclash[:-3]+'log'
+                #
+                #     if not os.path.isfile(logfphenixclash):
+                #         os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
+
                 # for a in lmut: fwclash.write()
+
                 for a in lmut:
                     outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
                     outf = outfold2 +'/'+ stresn + a + '.pdb'
@@ -589,11 +663,11 @@ for ch,dires in dic_pos_aa.items():
                     outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
                     logfphenixclash=outfphenixclash[:-3]+'log'
                     logfclash=outf[:-4]+'_clash.log'
-                    if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
-                        RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
+                    # if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
+                    #     RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
                     SumClashDist,nSSb=RJB_lib.RetrieveSumClashSSbond(clashin=logfclash,maxdist=2.5)
-                    if not os.path.isfile(logfphenixclash):
-                        os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
+                    # if not os.path.isfile(logfphenixclash):
+                    #     os.system('phenix.clashscore ' + outfphenixclash + ' > '+logfphenixclash)
                     #print (logfphenixclash)
                     clashscore,clashscoresum=RJB_lib.readPhenixClashscore(log=logfphenixclash,chf=ch,resnf=resn)
                     SumClashDist,clashscoresum,clashscore='%.1f'%(SumClashDist),'%.1f'%(clashscoresum),'%.1f'%(clashscore)
@@ -623,6 +697,10 @@ for ch,dires in dic_pos_aa.items():
                 #exit()
                 fwclash.close()
                 fwInt.close()
+
+                #t4 = time.time()
+                # print('running All evalutation clashscore', t3 - t2)
+                # print('running Post evalutation clashscore', t4 - t3)
 
 if ML:
     #Join information from clashes
@@ -675,10 +753,41 @@ if ML:
                                 #correct atom number
                                 scountatom=str(countatom)
                                 l='ATOM'+' '*(7-len(scountatom))+scountatom+l[11:]
+                                if l[72]==' ': l=l[:72]+l[21]+l[73:]
                                 fwpdb.write(l)
                                 countatom+=1
         #print (outfold2+res+'.pdb')
-        if not os.path.isfile(outfold2+res+'.log'): os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
+        #print ('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
+        #exit()
+
+    # multiprocessing implementation of phenix.rotalize, done Mar15,2024
+    def phenixrotalize (rotalyze_path,pdb,log):
+        p = subprocess.Popen([rotalyze_path, pdb], stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        out, err = p.communicate()
+        with open(log, 'w') as f: f.write(out)
+
+    for res in ['C', 'D', 'E', 'F', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']:
+        if not os.path.isfile(outfold2+res+'.log'): #os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
+            if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
+                #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
+                while 1:
+                    time.sleep(0.1)
+                    if len(multiprocessing.active_children()) < nproc:
+                        print ('Running phenix.rotalyze',outfold2+res+'.pdb > ',outfold2+res+'.log')
+                        process = multiprocessing.Process(target=phenixrotalize, args=('phenix.rotalyze', outfold2+res+'.pdb',outfold2+res+'.log'))
+                        process.start()
+                        time.sleep(0.1)
+                        break
+            else:
+                print("FATAL ERROR: I cannot load correctly information of CPUs.")
+                exit()
+    while 1:
+        time.sleep(0.1)
+        if len(multiprocessing.active_children()) == 0:
+            break
+
+    for res in ['C', 'D', 'E', 'F', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']:
         with open(outfold2+res+'.log') as f: fr=f.readlines()
         for l in fr[1:-1]:
             ch=l[1]
@@ -697,15 +806,20 @@ if ML:
 
 
 for ch, dires in dic_pos_aa.items():
-    # print ch
+    #print (ch)
     RJB_lib.mkdir(output_folder + '/' + ch)
     for resn, lmut in dires.items():
+        #print('resn', resn)
+        #print('lmut', lmut)
         stresn=str(resn)
         outfmc=output_folder + '/mainchain/' + ch + stresn + '.pdb'
         if not os.path.isfile(outfmc):
             dic = {}
             for c1 in ch:
+                print ('c1',c1)
                 for c in c1:
+                    print ('c',c)
+                    print ('dic_pdb[c][resn]',dic_pdb[c][resn])
                     dic[c] = {resn:dic_pdb[c][resn]}
             RJB_lib.remove_Bfactor_occ_res_pdb(pdb_input=pdb,pdb_output=outfmc,dic_ch_resn=dic,AtomsExclude=[],AtomsInclude=['CA','N ','C ','O '])
                                                                                                             # I was writing all atoms names to be excluded,but decided to do the opposite
@@ -806,6 +920,7 @@ while 1:
 #Dictionary of CC1/3
 dicallSC={}
 
+print ('Building Summary of polder RSCC (cc13) of side chain atoms')
 ###SUMMARY RESULTS PHENIX.POLDER BY CHAIN AND BY RESIDUE NUMBER
 quitt = False
 for ch, dires in dic_pos_aa.items():
@@ -849,7 +964,7 @@ for ch, dires in dic_pos_aa.items():
                 ou2.write('\t'+di[t])
         ou2.close()
 
-
+print ('Building Summary of polder RSCC (cc13) of main chain atoms')
 #### Building dictionary of polder RSCC (cc13) of main chain atoms
 dicmainchain={}
 for ch, dires in dic_pos_aa.items():
@@ -862,7 +977,7 @@ for ch, dires in dic_pos_aa.items():
         try:
             di = RJB_lib.extract_CC_R_Rfree_from_polder_log(outfmc)
         except:
-            print('Failure extracting CC, R, Rfree of file:', outlog)
+            print('Failure extracting CC, R, Rfree of file:', outfmc)
             di = False
             quitt=True
         if di==False: di={'cc13':'Null'}
@@ -1045,17 +1160,18 @@ maps=open(output_folder+'_polder_coot_open_maps','w')
 maps.write( '(set-default-initial-contour-level-for-difference-map 3.0)\n')
 lfmaps=[]
 pathorig=os.getcwd()
-dires=dic_pos_aa[ch]
-for resn,lmut in dires.items():
-#for ch,dires in dic_pos_aa.items():
-    #print ch
-    #for resn,lmut in dires.items():
-    for ch,dires2 in dic_pos_aa.items():
-        if resn in dires2:
-            for file in os.listdir(output_folder+'/'+ch+'/'+str(resn)):
-                if file.endswith('.mtz') and 'polder' in file:
-                    f=pathorig+'/'+output_folder+'/'+ch+'/'+str(resn)+'/'+file
-            lfmaps.append(f)
+
+for ch,dires in dic_pos_aa.items():
+    for resn,lmut in dires.items():
+    #for ch,dires in dic_pos_aa.items():
+        #print ch
+        #for resn,lmut in dires.items():
+        for ch,dires2 in dic_pos_aa.items():
+            if resn in dires2:
+                for file in os.listdir(output_folder+'/'+ch+'/'+str(resn)):
+                    if file.endswith('.mtz') and 'polder' in file:
+                        f=pathorig+'/'+output_folder+'/'+ch+'/'+str(resn)+'/'+file
+                lfmaps.append(f)
 for fm in lfmaps:
     maps.write( '( make-and-draw-map "' + str(fm)+'" "mFo-DFc_polder" "PHImFo-DFc_polder" "" 0 1)\n')
 maps.close()
@@ -1184,3 +1300,103 @@ for ch in dicallSC:
 outResolved.close()
 outDubious.close()
 
+#Writting Analysis based on PDB/MTZ data statistics
+
+#llabels=['PDB','Source','#Res','#ProtCh','Res(A)','Compl%','ComplHigh%','Redundancy','SG','B-Wilson','B-Wilson-mean','I/Sigma','I/Sigma(High)','Specie','R','Rfree']
+llabels=['PDB','Res','RPDB','RfreePDB','ComplPDB','ComplAllX','ComplHRPDB','ComplHRX','ISX','WPX']
+amino_acid_list_3L=['ALA','CYS','ASP','GLU','PHE','GLY','HIS','ILE','LYS','LEU','MET','ASN','PRO','GLN','ARG','SER','THR','VAL','TRP','TYR','MSE']
+
+out=output_folder+'_DATA_statistics.log'
+
+fw = open(out, 'w')
+fw.write(llabels[0])
+for i in llabels[1:]: fw.write(',' + i)
+
+#Getting values from PDB
+with open(pdb) as f: frPDB = f.read()
+
+try:        iR=frPDB.index('REMARK   3   R VALUE            (WORKING SET)')+48
+except:     iR=frPDB.index('REMARK   3   R VALUE          (WORKING SET, NO CUTOFF) :')+57
+RPDB=re.sub(r'[^0-9.]', '',frPDB[iR:iR+7])
+try:    iRfree=frPDB.index('REMARK   3   FREE R VALUE                    ')+48
+except: iRfree=frPDB.index('REMARK   3   FREE R VALUE                  (NO CUTOFF) :')+57
+RfreePDB=re.sub(r'[^0-9.]', '',frPDB[iRfree:iRfree+7])
+
+if 'REMARK   2 RESOLUTION.' in frPDB: iRes=frPDB.index('REMARK   2 RESOLUTION.')+23
+elif 'REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) :' in frPDB: iRes=frPDB.index('REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) :')+48
+elif 'REMARK   3   BIN RESOLUTION RANGE HIGH           :' in frPDB: iRes=frPDB.index('REMARK   3   BIN RESOLUTION RANGE HIGH           :')+51
+Res=re.sub(r'[^0-9.]', '',frPDB[iRes:iRes+8])
+
+
+if 'REMARK 200  COMPLETENESS FOR RANGE     (%) :' in frPDB: iCompl = frPDB.index('REMARK 200  COMPLETENESS FOR RANGE     (%) :') + 44
+elif 'REMARK   3   COMPLETENESS FOR RANGE        (%) :' in frPDB: iCompl = frPDB.index('REMARK   3   COMPLETENESS FOR RANGE        (%) :')+49
+ComplPDB=re.sub(r'[^0-9.]', '',frPDB[iCompl:iCompl+6])
+if 'REMARK 200  COMPLETENESS FOR SHELL     (%) :' in frPDB: iComplHR = frPDB.index('REMARK 200  COMPLETENESS FOR SHELL     (%) :') + 44
+elif 'REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) :' in frPDB: iComplHR = frPDB.index('REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) :') + 53
+ComplHRPDB = re.sub(r'[^0-9.]', '',frPDB[iComplHR:iComplHR + 6])
+
+# try:
+#  iRed=frPDB.index('REMARK 200  DATA REDUNDANCY                :')+44
+#  RedPDB=frPDB[iRed:iRed+6].replace(' ', '')
+# except: RedPDB='NULL'
+#
+# try:
+#  iWP=frPDB.index('REMARK   3   FROM WILSON PLOT           (A**2) :')+48
+#  WPPDB=frPDB[iWP:iWP+6].replace(' ', '')
+# except: WPPDB='NULL'
+#
+# try:
+#  iISall=frPDB.index('REMARK 200  <I/SIGMA(I)> FOR THE DATA SET  :')+44
+#  ISallPDB=frPDB[iISall:iISall+9].replace(' ', '')
+#  iISHR=frPDB.index('REMARK 200  <I/SIGMA(I)> FOR SHELL         :')+44
+#  ISHRPDB=frPDB[iISHR:iISHR+9].replace(' ', '')
+# except:
+#  ISallPDB='NULL'
+#  ISHRPDB = 'NULL'
+
+#Running phenix.xtriage
+if not os.path.isfile(mtz_init[:-4]+'_xtriage.log'):
+ print('Running phenix.xtriage '+mtz_init+' > '+mtz_init[:-4]+'_xtriage.log')
+ os.system('phenix.xtriage '+mtz_init+' > '+mtz_init[:-4]+'_xtriage.log')
+
+#Getting values from phenix.xtriage
+if os.path.isfile(mtz_init[:-4]+'_xtriage.log'):
+ ISX,ComplAllX,ComplHRX,ComplIS1,ComplIS3,ComplIS5,ComplIS10,ComplIS15,WPX,t1i,t2f,t3e,t4l,t5l2,t6z='NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL','NULL'
+
+with open(mtz_init[:-4]+'_xtriage.log') as f: fX=f.readlines()
+checkCompl=False
+checkComplBinning=False
+for i,l in enumerate(fX):
+
+    if l.startswith('Completeness in resolution range: '): ComplAllX=l.split()[-1]
+    if l.startswith('Overall <I/sigma> for this dataset is'): ISX=l.split()[-1]
+    if l.startswith('  | Completeness and data strength'): checkCompl=True
+    if checkCompl and l.startswith('  The completeness of data for which I/sig(I)>3.00'):
+     checkCompl=False
+     lHR=fX[i-3].split()
+     #print (lHR)
+     ComplIS1,ComplIS3,ComplIS5,ComplIS10,ComplIS15=lHR[5],lHR[9],lHR[11],lHR[13],lHR[15]
+    if l.startswith('                 ----------Completeness (log-binning)----------'): checkComplBinning=True
+    #if checkComplBinning: print (l[:-1])
+    if checkComplBinning and l.startswith('               ----------Analysis of resolution limits------'):
+     checkComplBinning=False
+     #print ('Here')
+     ComplHRX=fX[i-3].split()[-2][:-1]
+    if l.endswith(' A**2\n'): WPX=l.split()[0]
+
+    if l.startswith('  <I^2>/<I>^2 :'): t1i=l[15:21].replace(' ','')
+    if l.startswith('  <F>^2/<F^2> :'): t2f=l[15:21].replace(' ', '')
+    if l.startswith('  <|E^2-1|>   :'): t3e=l[15:21].replace(' ', '')
+    if l.startswith('  <|L|>       :'): t4l=l[15:21].replace(' ', '')
+    if l.startswith('  <L^2>       :'): t5l2=l[15:21].replace(' ', '')
+    if l.startswith('  Multivariate Z score L-test:'): t6z = l.split()[-1]
+
+
+ComplAllX=float(ComplAllX)*100
+ComplAllX = '%.1f' % (ComplAllX)
+
+# if ISallPDB!='NULL':
+#  ISallPDB = float(ISallPDB)
+#  ISallPDB = '%.1f' % (ISallPDB)
+
+fw.write('\n'+pdb[:-4]+','+Res+','+RPDB+','+RfreePDB+','+ComplPDB+','+ComplAllX+','+ComplHRPDB+','+ComplHRX+','+ISX+','+WPX)

@@ -4,11 +4,12 @@
 # 08 April 2020
 # Author : Rafael Borges
 # Objetive: Obtain positive SLIDER peptides from overall run from PEAKS HTML output
-# It reads a sequence and PEAKS HTML output with all values
+# It reads a sequence from a chain of a PDB and a PEAKS HTML output with all values
 # It returns each peptide among its -10lgP
 
-# USAGE: ObtainPeptidesPatternLabRun.py seq.seq PEAKS.html OutputFile
-# seq.seq has just the sequence without >
+# USAGE: ObtainPeptidesPatternLabRun.py pdb.pdb A PEAKS.html OutputFile
+# pdb.pdb should be a general pdb file
+# chain should be a single letter contained in pdb file
 # PEAKS.html exactly like PEAKS html output
 # OutputFile should be a new path
 
@@ -20,12 +21,17 @@ import sys,os
 
 import sys,os
 
-seqinput         = sys.argv[1] #FASTA - single line
-PEAKSInput       = sys.argv[2] #PEAKSInput file
-RSCCInput        = sys.argv[3]
+#seqinput         = sys.argv[1] #FASTA - single line
+pdbinput         = sys.argv[1] #pdb file
+chain            = sys.argv[2]
+PEAKSInput       = sys.argv[3] #PEAKSInput file
+#RSCCInput        = sys.argv[4]
 outfile          = sys.argv[4] #where files will be organized
 try: exclude     = sys.argv[5].split(',')
 except: exclude=False
+
+amino_acid_list=           ['A',  'C',  'D',  'E',  'F',  'G',  'H',  'I',  'K',  'L',  'M',  'N',  'P',  'Q',  'R',  'S',  'T',  'V',  'W',  'Y',  'M'  ]
+amino_acid_list_3L=        ['ALA','CYS','ASP','GLU','PHE','GLY','HIS','ILE','LYS','LEU','MET','ASN','PRO','GLN','ARG','SER','THR','VAL','TRP','TYR','MSE']
 
 def GivenTwoSeqsReturnIndexMatch (seq1,seq2):
     if len(seq1)>len(seq2): seqA,seqB = seq1 , seq2
@@ -45,10 +51,71 @@ def GivenTwoSeqsReturnIndexMatch (seq1,seq2):
             indfinalId=iA
     return finalId,indfinalId
 
+def BestAlignment2StringsReturnIndexScore (st1,st2):
+    if '~' in st1:
+        print ('~ in string 1, failure, correct code')
+        exit()
+    st11='~'*(len(st2)-1)+st1+'~'*(len(st2)-1)
+    bestscore=0
+    bestindex=0
+    for i in range( len(st11)-len(st2)+1 ):
+        scorevar = 0
+        v1=st11[i:]
+        for ii in range(len(st2)):
+            if st2[ii]==v1[ii]: scorevar+=1
+        # print st2
+        # print v1
+        # print scorevar
+        # print '\n'
+        if scorevar>bestscore:
+            bestscore=scorevar
+            bestindex=i
+    bestindex-=len(st2)-1
+    # print bestscore
+    # print ' '*(-1*bestindex)+st1
+    # print ' '*bestindex+st2
+    # print bestindex
+    return bestindex,bestscore
+
+with open(pdbinput) as f: frpdb=f.readline()
+
+#Read sequence and residue number from CA atoms given a provided chain and pdb file
+seqPDB=''
+lres=[]
+for l in frpdb:
+    #Extracting sequence from PDB is done evaluating ATOM, CA, given chain and absent altConf or equals to A
+    if l.startswith('ATOM') and l[13:15]=='CA' and l[21]==chain and l[16] in [' ','A']:
+        resn=int(l[22:26])
+        rest3L=l[17:20]
+        rest1L=amino_acid_list[amino_acid_list_3L.index(rest3L)]
+        seqPDB+=rest1L
+        lres.append(resn)
+
+# print (seqPDB,len(seqPDB))
+# print (lres,len(lres))
+# exit()
+
+#Extract contiguous fragments of sequence in lseqPDB
+prevres=-999
+lseqPDB=[]
+vseq=''
+for i,s in enumerate (seqPDB):
+    #print (i,s,lres[i],vseq)
+    res=lres[i]
+    if prevres<=res-1:
+        vseq+=s
+    else:
+        lseqPDB.append(vseq)
+        vseq=''
+    prevres=int(res)
+lseqPDB.append(vseq)
+
+# print (lseqPDB,len(lseqPDB[0]))
+# exit()
+
+
 outfile1=open(outfile+'.log','w')
 outfile2=open(outfile+'.log2','w')
-
-with open(seqinput) as f: seq=f.read()
 
 with open(PEAKSInput) as f: fr2=f.read()
 with open(PEAKSInput) as f: fr1=f.readlines()
@@ -120,7 +187,7 @@ for l in fr1:
             else:
                 if PScore>dicall[pept]: dicall[pept]=PScore
 
-if exclude: print (seq,'\n')
+if exclude: print (seqPDB,'\n')
 
 # with open(outfile,'w') as fw:
 #     fw.write('#Scan Line: Unique	FileName	ScanNumber	ChargeState	PrimaryScore	DeltCN	M+H+	CalcM+H+	ZScore	BayesianScore	RedundancyAtPtnLevel	Sequence')
@@ -130,7 +197,7 @@ if exclude: print (seq,'\n')
 
 lall=[]
 for pept in dicall:
-    finalId,indfinalId=GivenTwoSeqsReturnIndexMatch(seq,pept)
+    finalId,indfinalId=GivenTwoSeqsReturnIndexMatch(seqPDB,pept)
     lall.append([indfinalId,pept,dicall[pept]])
 
 #print (lall)
@@ -162,9 +229,9 @@ for l in lallclean:
 
 
 
-print ('\n\n\n'+seq,'\n')
+print ('\n\n\n'+seqPDB,'\n')
 lvarres=[]
-for i,res in enumerate(seq):
+for i,res in enumerate(seqPDB):
     lvar=[]
     for seq in lvarseq:
         if len(seq)>i:
