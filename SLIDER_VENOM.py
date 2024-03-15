@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# 20 September 2021
+# 15 March 2024
 # Author : Rafael Borges
 # Objective: Generate amino acid possibilities by residue, fit best rotamer in electron density and calculate their
 # side chain and main chain real-space correlation coefficient
@@ -686,7 +686,7 @@ for ch, dires in dic_pos_aa.items():
                 # print('t of ChangeChSym = ', t3 - t2)
                 # print('t of RemoveCheckResAboveDist = ', t4 - t3)
                 if not os.path.isfile(loghbplus):
-                    os.system('/home/rborges/LigPlus/lib/exe_linux64/hbplus '+outfhbplus+' > /dev/null')
+                    os.system('hbplus '+outfhbplus+' > /dev/null')
                     # print (loghbplus[loghbplus.rindex('/')+1:],loghbplus)
                     shutil.move(loghbplus[loghbplus.rindex('/')+1:],loghbplus)
                 nH,nSalt=RJB_lib.ReturnHSaltbonds(login=loghbplus,chf=ch,resnf=resn)
