@@ -52,6 +52,15 @@ import RJB_lib
 import numpy
 import datetime
 import Bio.PDB
+
+import warnings
+from Bio import BiopythonWarning
+warnings.simplefilter('ignore', BiopythonWarning)
+# from Bio import BiopythonParserWarning
+# warnings.simplefilter('ignore', BiopythonParserWarning)
+# from Bio import BiopythonDeprecationWarning
+# warnings.simplefilter('ignore', BiopythonDeprecationWarning)
+
 import re
 import subprocess
 
@@ -157,6 +166,22 @@ else:              ML=False
 #Rotamers
 # DicRotamers={'':}
 
+# multiprocessing implementation of phenix.clashscore, done Mar15,2024
+def phenixclashscore(clashscore_path, pdb, log):
+    p = subprocess.Popen([clashscore_path, pdb], stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    out, err = p.communicate()
+    # print (out)
+    with open(log, 'w') as f: f.write(out)
+
+# multiprocessing implementation of phenix.rotalize, done Mar15,2024
+def phenixrotalize(rotalyze_path, pdb, log):
+    p = subprocess.Popen([rotalyze_path, pdb], stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    out, err = p.communicate()
+    with open(log, 'w') as f: f.write(out)
+
+
 print ('\n\n\n')
 
 now = datetime.datetime.now()
@@ -171,7 +196,7 @@ date = now.isoformat()[:10] + ' ' + now.isoformat()[11:16]
 print ('Running '+sys.argv[0]+' '+date)
 
 nproc=RJB_lib.number_of_processor()
-#nproc=4
+nproc=100
 #nproc=20
 #nproc=24
 #nproc=48
@@ -565,8 +590,18 @@ for ch,dires in dic_pos_aa.items():
                         print ("FATAL ERROR: I cannot load correctly information of CPUs.")
                         exit()
 
-        if ML:
+# wait coot jobs finish
+while 1:
+    time.sleep(0.1)
+    if len(multiprocessing.active_children()) == 0:
+        break
+
+if ML:
+    for ch,dires in dic_pos_aa.items():
+        for resn,lmut in dires.items():
             #Evaluation of clashes and interactions (hydrogen / SS-bond / hydrophobic) and their energy
+            stresn = str(resn)
+            outfold = output_folder + '/' + ch + '/' + stresn + '/'
             outfold2=output_folder + '/eval/'+ch+'/'+stresn
             #print ('Generating files in',outfold2)
             RJB_lib.mkdir(outfold2)
@@ -592,13 +627,6 @@ for ch,dires in dic_pos_aa.items():
                     #if ldiff!=[]: print (resn,a,ldiff)
                 #exit()
 
-                # multiprocessing implementation of phenix.clashscore, done Mar15,2024
-                def phenixclashscore(clashscore_path, pdb, log):
-                    p = subprocess.Popen([clashscore_path, pdb], stdin=subprocess.PIPE,
-                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                    out, err = p.communicate()
-                    #print (out)
-                    with open(log, 'w') as f: f.write(out)
 
                 #t2 = time.time()
                 for a in lmut:
@@ -618,24 +646,24 @@ for ch,dires in dic_pos_aa.items():
                     #     os.system('phenix.clashscore ' + outfphenixclash + ' > ' + logfphenixclash)
 
                     #Multiprocessing
-                        if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
-                            #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
-                            while 1:
+                    if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
+                        #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
+                        while 1:
+                            time.sleep(0.1)
+                            if len(multiprocessing.active_children()) < nproc:
+                                #print('Running phenix.clashscore', outfphenixclash,logfphenixclash)
+                                process = multiprocessing.Process(target=phenixclashscore, args=(
+                                'phenix.clashscore', outfphenixclash,logfphenixclash))
+                                process.start()
                                 time.sleep(0.1)
-                                if len(multiprocessing.active_children()) < nproc:
-                                    print('Running phenix.clashscore', outfphenixclash,logfphenixclash)
-                                    process = multiprocessing.Process(target=phenixclashscore, args=(
-                                    'phenix.clashscore', outfphenixclash,logfphenixclash))
-                                    process.start()
-                                    time.sleep(0.1)
-                                    break
-                        else:
-                            print("FATAL ERROR: I cannot load correctly information of CPUs.")
-                            exit()
-                while 1:
-                    time.sleep(0.1)
-                    if len(multiprocessing.active_children()) == 0:
-                        break
+                                break
+                    else:
+                        print("FATAL ERROR: I cannot load correctly information of CPUs.")
+                        exit()
+    while 1:
+        time.sleep(0.1)
+        if len(multiprocessing.active_children()) == 0:
+            break
                 #t3 = time.time()
 
                 # for a in lmut:
@@ -649,6 +677,7 @@ for ch,dires in dic_pos_aa.items():
 
 for ch, dires in dic_pos_aa.items():
     for resn,lmut in dires.items():
+        stresn=str(resn)
         if ML:
             outfold2=output_folder + '/eval/'+ch+'/'+stresn
 
@@ -764,13 +793,6 @@ if ML:
         #print (outfold2+res+'.pdb')
         #print ('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')
         #exit()
-
-    # multiprocessing implementation of phenix.rotalize, done Mar15,2024
-    def phenixrotalize (rotalyze_path,pdb,log):
-        p = subprocess.Popen([rotalyze_path, pdb], stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        out, err = p.communicate()
-        with open(log, 'w') as f: f.write(out)
 
     for res in ['C', 'D', 'E', 'F', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']:
         if not os.path.isfile(outfold2+res+'.log'): #os.system('phenix.rotalyze '+outfold2+res+'.pdb > '+outfold2+res+'.log')

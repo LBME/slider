@@ -44,7 +44,7 @@ from collections import defaultdict
 
 #import BORGES_MATRIX
 from operator import itemgetter, attrgetter, methodcaller
-from termcolor import colored
+#from termcolor import colored
 import traceback
 # import Grid
 from collections import defaultdict
@@ -54,7 +54,16 @@ import datetime
 from math import pi
 import Bio.PDB
 from Bio import pairwise2
-from Bio.SubsMat import MatrixInfo as MatList
+#from Bio.SubsMat import MatrixInfo as MatList
+
+import warnings
+from Bio import BiopythonWarning
+warnings.simplefilter('ignore', BiopythonWarning)
+# from Bio import BiopythonParserWarning
+# warnings.simplefilter('ignore', BiopythonParserWarning)
+# from Bio import BiopythonDeprecationWarning
+# warnings.simplefilter('ignore', BiopythonDeprecationWarning)
+
 
 amino_acid_list=           ['A',  'C',  'D',  'E',  'F',  'G',  'H',  'I',  'K',  'L',  'M',  'N',  'P',  'Q',  'R',  'S',  'T',  'V',  'W',  'Y',  'M'  ]
 amino_acid_list_3L=        ['ALA','CYS','ASP','GLU','PHE','GLY','HIS','ILE','LYS','LEU','MET','ASN','PRO','GLN','ARG','SER','THR','VAL','TRP','TYR','MSE']
