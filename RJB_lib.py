@@ -695,6 +695,7 @@ def runAREAIMOLccp4_bigMolec (pdbfile,outpdb,listchains,instr_file='areaimol-ins
     out, err = p.communicate()
     instr.close()
     AreaimolLog.close()
+    os.system('rm '+instr_file)
     if not os.path.isfile(outpdb):
         os.mkdir('areaimol')
         outputareaimol=''
@@ -709,7 +710,6 @@ def runAREAIMOLccp4_bigMolec (pdbfile,outpdb,listchains,instr_file='areaimol-ins
         if outputareaimol=='':
             print ('ERROR in areaimol calculation.\nFile', outpdb, 'not generated.')
             exit()
-    os.system('rm '+instr_file)
 
     
 def extract_protein_chainID_res_number (pdb_input) :
