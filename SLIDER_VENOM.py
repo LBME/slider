@@ -387,7 +387,9 @@ if 'ALIGN' in typeee and not 'MASSPEC' in typeee and not 'TRYALL' in typeee:
 dic_seq_initial=RJB_lib.return_dic_sequence(pdb)
 d_imp={}
 impr=False
+listchains=[]
 for ch,dires in dic_pos_aa.items():
+    listchains.append(ch)
     for i,lmut in dires.items():
         if len(lmut)==1 and dic_seq_initial[ch][ dic_res[ch].index(i) ]!=lmut[0]:
             try:
@@ -407,7 +409,7 @@ for ch,dires in dic_pos_aa.items():
 #            #coot_run_rotamer_sphere_refinement_multi ( input_PDB_file , input_mtz_file , output_pdb , outputCootPy , dic , radius_sph_ref=5  , coot_path=False )
 
 ####RUNNING AREAIMOL FOR SIDE CHAIN ATOMS
-if not os.path.isfile (pdb[:-4]+'-areaimol.pdb'): RJB_lib.runAREAIMOLccp4 (pdbfile=pdb,outpdb=pdb[:-4]+'-areaimol.pdb')
+if not os.path.isfile (pdb[:-4]+'-areaimol.pdb'): RJB_lib.runAREAIMOLccp4_bigMolec (pdbfile=pdb,outpdb=pdb[:-4]+'-areaimol.pdb',listchains=listchains)
 
 
 #added 20181031 to remove partial occupancy atoms from dictionary

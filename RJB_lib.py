@@ -668,7 +668,49 @@ def retrieve_res_statistic_to_table ( out_input_file, min_res , max_res , output
 
         out_res_file_new_overall.write('\n')
     out_res_file_new_overall.close()
-    
+
+def write_PDB_file_containing_given_chains (pdb_input,chain):
+    file=open(pdb_input,'r')
+    file_list=file.readlines()
+    file.close()
+    #print ("PDB file:",pdb_input)
+    output_by_chain=open(pdb_input[:-4]+"_"+chain+".pdb","w")
+    for line in file_list:
+        #if line.startswith('ATOM') or line.startswith("ANISOU") or line.startswith("HETATM"):
+        if line.startswith('ATOM'):
+            if chain == line[21]: output_by_chain.write(line)
+    output_by_chain.close()
+    #print ("PDB file: ",pdb_input[:-4]+"_"+chain+".pdb","containing chain",chain,"has just been written.")
+
+
+def runAREAIMOLccp4_bigMolec (pdbfile,outpdb,listchains,instr_file='areaimol-instructions.ins',areaimolpath='areaimol'):
+    if not os.path.isfile(instr_file):
+        fo=open(instr_file,'w')
+        fo.write('DIFFMODE OFF\nMODE -\n    NOHOH\nSMODE OFF\nREPORT -\n    CONTACT -\n    YES -\n    RESAREA -\n    YES\nPNTDEN 10\nPROBE 1.4\nOUTPUT\nEND')
+        fo.close()
+    instr=open(instr_file)
+    AreaimolLog = open(outpdb[:-3]+'log', 'w')
+    p = subprocess.Popen(
+        [areaimolpath, 'XYZIN', pdbfile, 'XYZOUT', outpdb],stdin=instr, stdout=AreaimolLog, stderr=subprocess.PIPE , text=True)
+    out, err = p.communicate()
+    instr.close()
+    AreaimolLog.close()
+    if not os.path.isfile(outpdb):
+        os.mkdir('areaimol')
+        outputareaimol=''
+        for ch in listchains:
+            write_PDB_file_containing_given_chains (pdbfile,ch)
+            if not os.path.isfile (pdbfile[:-4]+'_'+ch+'-areaimol.pdb'):
+                print('Running areaimol for file:',pdbfile[:-4]+'_'+ch+'-areaimol.pdb')
+                runAREAIMOLccp4 (pdbfile=pdbfile[:-4]+'_'+ch+'.pdb',outpdb=pdbfile[:-4]+'_'+ch+'-areaimol.pdb')
+            with open(pdbfile[:-4]+'_'+ch+'-areaimol.pdb') as f: outputareaimol+='\n'+f.read()
+            os.system('mv '+pdbfile[:-4]+'_'+ch+'-areaimol.pdb '+pdbfile[:-4]+'_'+ch+'-areaimol.log '+pdbfile[:-4]+'_'+ch+'.pdb areaimol')
+        with open(outpdb,'w') as fw: fw.write(outputareaimol)
+        if outputareaimol=='':
+            print ('ERROR in areaimol calculation.\nFile', outpdb, 'not generated.')
+            exit()
+    os.system('rm '+instr_file)
+
     
 def extract_protein_chainID_res_number (pdb_input) :
     file=open(pdb_input,'r')
