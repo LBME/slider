@@ -196,7 +196,7 @@ date = now.isoformat()[:10] + ' ' + now.isoformat()[11:16]
 print ('Running '+sys.argv[0]+' '+date)
 
 nproc=RJB_lib.number_of_processor()
-nproc=100
+#nproc=100
 #nproc=20
 #nproc=24
 #nproc=48
@@ -629,7 +629,6 @@ if ML:
                     #if ldiff!=[]: print (resn,a,ldiff)
                 #exit()
 
-
                 #t2 = time.time()
                 for a in lmut:
                     outi = output_folder+'/'+ch+'/'+stresn+'/'+stresn+a+'.pdb'
@@ -640,7 +639,9 @@ if ML:
                     outfphenixclash=outf[:-4]+'_4phenix.clash.pdb'
                     logfphenixclash=outfphenixclash[:-3]+'log'
                     logfclash=outf[:-4]+'_clash.log'
+                    #print('checking files ' + outfhbplus + ' ' + outfphenixclash + ' ' + outf[:-4] + '_dist.log ' + logfclash)
                     if not os.path.isfile(outfhbplus) and not os.path.isfile(outfphenixclash) and not os.path.isfile(outf[:-4]+'_dist.log') and not os.path.isfile(logfclash):
+                        #print('checking files '+outfhbplus+' '+outfphenixclash+' '+outf[:-4]+'_dist.log'+logfclash)
                         RJB_lib.RemoveCheckResAboveDist(pdbin=outf,chf=ch,resnf=resn,pdboutshort=outfhbplus,pdboutlarge=outfphenixclash,distout=outf[:-4]+'_dist.log',clashout=logfclash,distint=4.0,distclash=2.4)
 
                     # Single processor
@@ -648,20 +649,27 @@ if ML:
                     #     os.system('phenix.clashscore ' + outfphenixclash + ' > ' + logfphenixclash)
 
                     #Multiprocessing
-                    if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
-                        #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
-                        while 1:
-                            time.sleep(0.1)
-                            if len(multiprocessing.active_children()) < nproc:
-                                #print('Running phenix.clashscore', outfphenixclash,logfphenixclash)
-                                process = multiprocessing.Process(target=phenixclashscore, args=(
-                                'phenix.clashscore', outfphenixclash,logfphenixclash))
-                                process.start()
+                    # print('Checking files ' + outfphenixclash + ' ' + logfphenixclash)
+                    # print('Checking file1 '+outfphenixclash , os.path.isfile(outfphenixclash))
+                    # print('Checking file2 ' + logfphenixclash , os.path.isfile(logfphenixclash))
+                    if not os.path.isfile(logfphenixclash):
+                        # print('Checking file2.2 ' + logfphenixclash, os.path.isfile(logfphenixclash))
+                        if nproc > -1:  # NOTE: PROCESSES es el numero de cores que quieres lanzar, default == numero de cores-1
+                            #                    print "I found ", sym.REALPROCESSES, "CPUs." #NOTE: REALPROCESSES es el numero de cores de tu ordenador
+                            while 1:
                                 time.sleep(0.1)
-                                break
-                    else:
-                        print("FATAL ERROR: I cannot load correctly information of CPUs.")
-                        exit()
+                                if len(multiprocessing.active_children()) < nproc:
+                                    #print('Running phenix.clashscore', outfphenixclash,logfphenixclash)
+
+                                    process = multiprocessing.Process(target=phenixclashscore, args=(
+                                    'phenix.clashscore', outfphenixclash,logfphenixclash))
+                                    process.start()
+                                    time.sleep(0.1)
+                                    break
+                        else:
+                            print("FATAL ERROR: I cannot load correctly information of CPUs.")
+                            exit()
+                    # exit()
     while 1:
         time.sleep(0.1)
         if len(multiprocessing.active_children()) == 0:
@@ -1357,12 +1365,26 @@ elif 'REMARK   3   BIN RESOLUTION RANGE HIGH           :' in frPDB: iRes=frPDB.i
 Res=re.sub(r'[^0-9.]', '',frPDB[iRes:iRes+8])
 
 
-if 'REMARK 200  COMPLETENESS FOR RANGE     (%) :' in frPDB: iCompl = frPDB.index('REMARK 200  COMPLETENESS FOR RANGE     (%) :') + 44
+if   'REMARK 200  COMPLETENESS FOR RANGE     (%) :'      in frPDB: iCompl = frPDB.index('REMARK 200  COMPLETENESS FOR RANGE     (%) :') + 44
 elif 'REMARK   3   COMPLETENESS FOR RANGE        (%) :' in frPDB: iCompl = frPDB.index('REMARK   3   COMPLETENESS FOR RANGE        (%) :')+49
 ComplPDB=re.sub(r'[^0-9.]', '',frPDB[iCompl:iCompl+6])
 if 'REMARK 200  COMPLETENESS FOR SHELL     (%) :' in frPDB: iComplHR = frPDB.index('REMARK 200  COMPLETENESS FOR SHELL     (%) :') + 44
 elif 'REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) :' in frPDB: iComplHR = frPDB.index('REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) :') + 53
-ComplHRPDB = re.sub(r'[^0-9.]', '',frPDB[iComplHR:iComplHR + 6])
+try:
+    ComplHRPDB = re.sub(r'[^0-9.]', '',frPDB[iComplHR:iComplHR + 6])
+except:
+    iPhenixHR=frPDB.index('REMARK   3   BIN  RESOLUTION RANGE  COMPL.    NWORK NFREE   RWORK  RFREE  CCWORK CCFREE')
+    fPhenixHR=frPDB[iPhenixHR:].index('REMARK   3  \n')+iPhenixHR
+    lPhenixHR=frPDB[iPhenixHR:fPhenixHR].split('\n')
+    #print (lPhenixHR)
+    for l in lPhenixHR:
+        if l.startswith('REMARK   3    '):
+            #print(l)
+            ComplHRPDB=float(l[38:42])*100
+    ComplHRPDB='%.1f'%(ComplHRPDB)
+    #print (ComplHRPDB)
+    #exit()
+
 
 # try:
 #  iRed=frPDB.index('REMARK 200  DATA REDUNDANCY                :')+44
